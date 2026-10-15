@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L&amp;P Full Stack Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one band per layer (host on the left rail), component cards inside showing the pick,
+   alternatives and phase; a phase filter dims everything outside the chosen phase. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#15202e; --muted:#566476; --line:#d5dce5;
+  --accent:#1f5fae; --accent-soft:#e5eefa; --band:#e9edf3;
+  --gcp:#0b7a75; --vercel:#15202e; --supa:#1e7a4f;
+  --flag:#b26a00; --flag-soft:#fbf1e1;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
+  --accent:#7fb0ef; --accent-soft:#1b2a3f; --band:#131a23;
+  --gcp:#4fc9c1; --vercel:#e6ebf2; --supa:#5cc792;
+  --flag:#e5a54a; --flag-soft:#33281a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
+  --accent:#7fb0ef; --accent-soft:#1b2a3f; --band:#131a23;
+  --gcp:#4fc9c1; --vercel:#e6ebf2; --supa:#5cc792;
+  --flag:#e5a54a; --flag-soft:#33281a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:28px}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:20px;font-weight:700}
+p{margin:0}
+.eyebrow{font:600 11px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:76ch;color:var(--muted);font-size:16px}
+header{display:grid;gap:8px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;justify-content:space-between;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:10px;z-index:2;border-bottom:1px solid var(--line)}
+.phases{display:flex;flex-wrap:wrap;gap:6px}
+.phases button{font:600 13px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.phases button:hover{border-color:var(--accent)}
+.phases button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.phases button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);align-items:center}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.phasenote{font-size:13.5px;color:var(--muted);min-height:1.5em}
+.changes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.chg{background:var(--flag-soft);border:1px solid var(--flag);border-radius:10px;padding:12px 14px;display:grid;gap:4px;min-width:0}
+.chg b{font-size:13.5px}
+.chg span{font-size:13px;color:var(--muted)}
+.chg .id{font:700 11px var(--f-mono);color:var(--flag)}
+.layers{display:grid;gap:14px}
+.band{display:grid;grid-template-columns:180px minmax(0,1fr);background:var(--band);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rail{padding:14px;border-right:1px solid var(--line);background:var(--surface);display:grid;gap:6px;align-content:start;border-left:4px solid var(--host)}
+.rail .n{font:700 11px var(--f-mono);color:var(--muted)}
+.rail .t{font-weight:700;font-size:15px;line-height:1.25}
+.rail .h{font:500 11.5px/1.35 var(--f-mono);color:var(--host)}
+.cards{display:grid;gap:10px;padding:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));align-content:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:5px;align-content:start;transition:opacity .15s;min-width:0}
+.card.flag{border-color:var(--flag);border-width:1.5px}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card .c{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.card .p{font:600 11px var(--f-mono);color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 6px;white-space:nowrap}
+.card .pick{font-weight:700;font-size:14px;line-height:1.3}
+.card .alt{font-size:12.5px;color:var(--muted);line-height:1.4}
+.card .note{font-size:12px;color:var(--flag);line-height:1.35}
+.dim .card:not(.on){opacity:.22}
+.lic{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px}
+.lic ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:14px}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:grid;gap:4px}
+footer a{color:var(--accent)}
+@media (max-width:1000px){.changes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.band{grid-template-columns:1fr}.rail{border-right:0;border-bottom:1px solid var(--line)}.changes{grid-template-columns:1fr}.wrap{padding-inline:16px}}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">L&amp;P Global Security · v3 architecture · researched 15 Oct 2026</span>
+  <h1>L&amp;P Full Stack Map</h1>
+  <p class="lede">Every layer of the platform, top-down: the recommended option for each component, the alternatives worth knowing, and the phase it's built in. Pick a phase to see what that phase actually needs.</p>
+</header>
+
+<section style="display:grid;gap:10px">
+  <h2>Proposed changes to v3 (need your OK)</h2>
+  <div class="changes" id="changes"></div>
+</section>
+
+<div class="controls">
+  <div class="phases" role="group" aria-label="Filter by build phase" id="phases"></div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--vercel)"></span>Vercel</span>
+    <span><span class="sw" style="background:var(--supa)"></span>Supabase</span>
+    <span><span class="sw" style="background:var(--gcp)"></span>Google Cloud</span>
+    <span><span class="sw" style="background:var(--flag)"></span>Proposed change</span>
+  </div>
+</div>
+<p class="phasenote" id="phasenote">Showing every component.</p>
+
+<div class="layers" id="layers"></div>
+
+<section class="lic">
+  <h2>License watchlist</h2>
+  <ul>
+    <li><b>Avoid:</b> PyMuPDF (AGPL) · Firecrawl self-host (AGPL) · Marker model weights (revenue cap) · Handsontable / HyperFormula (commercial or GPL) · SheetJS npm (stale)</li>
+    <li><b>OK as libraries:</b> docxtpl (LGPL) · OCRmyPDF (MPL) · ghostscript (AGPL, separate binary)</li>
+    <li><b>Paid add-ons if needed:</b> Tiptap comments and track changes · AG Grid Enterprise · Supabase PITR · Sentry Team</li>
+  </ul>
+</section>
+
+<footer>
+  <span>Full detail, versions and sources: <code>lp-platform/architecture/FULL-STACK.md</code> in the claude_code_files repo. Decisions: <code>DECISIONS.md</code>.</span>
+  <span>Versions were current on the research date. Pin exact versions when each piece is installed.</span>
+</footer>
+</div>
+
+<script>
+const PHASES = {
+  P1: "Foundation: app shell, sign-in, permissions, document intake and verification, the worker, CI/CD and ops basics.",
+  P2: "One complete bid: compliance matrix, staffing and pricing, proposal writing and export, search.",
+  P3: "Agents: MCP server and per-person OAuth for ChatGPT and Claude.",
+  P4: "Revenue data: QuickBooks, Belfry and Gmail connectors, contract economics, metric definitions.",
+  P5: "Growth: sales prospecting and Apollo, pipeline boards.",
+  P6: "Warehouse: BigQuery history, Dataform, Pwin model, reporting."
+};
+const CHANGES = [
+  ["C1","Better Auth for ChatGPT/Claude sign-in","Supabase's OAuth server is beta, lacks CIMD and audience binding; reported bugs block ChatGPT."],
+  ["C2","One auth system or two?","Lean: Better Auth for staff Google login too, so there's one login system."],
+  ["C3","Belfry by file import","Belfry publishes no API or webhooks. Ask them about exports."],
+  ["C4","Custom loader to BigQuery","Pipelines is alpha with no history; Datastream can't read RLS tables."],
+  ["C5","Gemini embeddings via Vertex","Keeps proposal text in Google Cloud. Full-text search is the fallback."],
+  ["C6","All document generation on Cloud Run","LibreOffice and Chromium don't suit Vercel functions."]
+];
+// [component, pick, alternatives, phases (space-separated), note, flagged]
+const LAYERS = [
+  {n:"Layer 1", t:"Presentation", h:"Vercel · Next.js", host:"var(--vercel)", items:[
+    ["Framework","Next.js 16 App Router, TypeScript strict","—","P1"],
+    ["UI kit","shadcn/ui (Radix) + Tailwind v4","—","P1"],
+    ["Tables & compliance matrix","TanStack Table v9","Pin v8 to reuse the shadcn recipe as-is","P2"],
+    ["Pricing grid","AG Grid Community","Paid grid only if Excel paste/formulas are a must","P2","Glide Data Grid is unmaintained since 2024",1],
+    ["Proposal editor","Tiptap v3","Plate if track changes must be free","P2","Tiptap comments/track changes are paid"],
+    ["PDF evidence viewer","react-pdf 11","pdfjs viewer · EmbedPDF","P1"],
+    ["Forms","React Hook Form + Zod 4","TanStack Form for deep field arrays","P1"],
+    ["Charts","Recharts via shadcn","ECharts for dense dashboards","P2"],
+    ["Client cache","None at first","TanStack Query when polling/autosave needs it","P2"],
+    ["Pipeline boards","dnd-kit","Pragmatic Drag and Drop","P5"]
+  ]},
+  {n:"Layer 2", t:"API, identity & agent gateway", h:"Vercel Functions", host:"var(--vercel)", items:[
+    ["App API","Server actions + route handlers","next-safe-action","P1"],
+    ["Staff sign-in","Google Workspace only (internal consent screen + server check)","Supabase Auth or Better Auth (C2)","P1","",1],
+    ["Agent OAuth server","Better Auth mcp() + cimd()","WorkOS AuthKit (managed) · Supabase OAuth once fixed","P3","Change C1",1],
+    ["MCP server","mcp-handler 2 + MCP server SDK 2","xmcp","P3"],
+    ["Permissions","can(actor, action, resource) in services + RLS backstop","—","P1"],
+    ["Audit log","App-owned append-only audit_events","pgaudit for DB-level","P1"],
+    ["MCP testing","MCP Inspector + conformance suite","—","P3"]
+  ]},
+  {n:"Layer 3", t:"Domain services", h:"Vercel · TypeScript", host:"var(--vercel)", items:[
+    ["Service pattern","server-only modules per domain, Zod input + actor","—","P1"],
+    ["Database access","Drizzle ORM 0.45 on postgres.js","Kysely for pure SQL","P1","Drizzle 1.0 still RC: pin 0.45"],
+    ["Migrations","Supabase CLI owns all migrations","—","P1"],
+    ["Connection","Supavisor transaction mode (6543)","—","P1"],
+    ["Supabase keys","New publishable / secret keys","—","P1","Legacy keys deprecated end of 2026"],
+    ["Calculators","Pure TS cost buildup, relief factor, margin","—","P2"]
+  ]},
+  {n:"Layer 4", t:"AI add-ons (optional)", h:"Model APIs", host:"var(--muted)", items:[
+    ["LLM SDK","Vercel AI SDK v7","—","P2"],
+    ["Model access","Vercel AI Gateway","Vertex AI direct","P2"],
+    ["Embeddings","Gemini embedding via Vertex, 768d","OpenAI 3-small · self-hosted bge-m3","P2","Change C5",1],
+    ["Hybrid search","tsvector + pgvector HNSW + rank fusion","—","P2"],
+    ["LLM extraction","LangExtract over Docling output","Structured outputs with source quotes","P2"],
+    ["Cloud OCR","Google Document AI","Mistral OCR","P2"]
+  ]},
+  {n:"Layer 5", t:"Orchestration & scheduling", h:"Vercel + Supabase + GCP", host:"var(--accent)", items:[
+    ["Durable workflows","Vercel Workflow (hooks for human waits)","Trigger.dev · Inngest · Cloud Workflows","P1"],
+    ["Dispatch to Cloud Run","Vercel OIDC → WIF → ID token","—","P1","ID-token step needs confirming"],
+    ["App schedules","Vercel Cron","—","P1"],
+    ["Database schedules","Supabase Cron (pg_cron)","—","P1"],
+    ["GCP schedules","Cloud Scheduler → Cloud Run Jobs","—","P2"],
+    ["Queues","None at first","Cloud Tasks · Supabase Queues","P4"]
+  ]},
+  {n:"Layer 6", t:"Processing & integration", h:"Google Cloud Run", host:"var(--gcp)", items:[
+    ["Worker framework","FastAPI + Pydantic 2 + uv","—","P1"],
+    ["PDF & layout","Docling","pdfplumber fast path · pypdf","P1","Avoid PyMuPDF (AGPL)"],
+    ["OCR","OCRmyPDF + Tesseract","PaddleOCR · docTR","P1"],
+    ["Spreadsheets in","openpyxl","python-calamine for speed","P1"],
+    ["DOCX in","Docling + python-docx","docx2python","P1"],
+    ["DOCX out","docxtpl templates","docx (npm)","P2","",1],
+    ["PDF out","Gotenberg on Cloud Run","WeasyPrint · Playwright","P2","Change C6",1],
+    ["XLSX out","openpyxl into buyer template + recalc","—","P2"],
+    ["Web acquisition","Crawlee + Playwright (Jobs)","Scrapy · Crawl4AI","P1","Respect terms; no login automation"],
+    ["Google Workspace","Service account + domain-wide delegation","Per-user OAuth for 'as me'","P2"],
+    ["Shift solver","OR-Tools CP-SAT","—","P2"],
+    ["Pwin model","scikit-learn, calibrated","—","P6"]
+  ]},
+  {n:"Layer 6b", t:"Connectors", h:"Cloud Run Jobs", host:"var(--gcp)", items:[
+    ["Framework","Hand-written adapters (source ID, sync log, mismatches)","dlt · Airbyte","P4"],
+    ["QuickBooks Online","OAuth 2 + CDC + webhooks","—","P4","CDC looks back 30 days max"],
+    ["Belfry","File import (CSV/XLSX)","API if Belfry offers one","P4","Change C3",1],
+    ["Apollo.io","REST API","—","P5","Confirm plan includes API"],
+    ["Gmail","Pub/Sub push + watch + history","—","P4"]
+  ]},
+  {n:"Layer 7", t:"Operational data", h:"Supabase", host:"var(--supa)", items:[
+    ["Database","Postgres + pgvector + pg_cron + RLS","Cloud SQL later (portable)","P1"],
+    ["Files","Supabase Storage, append-only","—","P1","Not covered by Supabase backups"],
+    ["History tables","Trigger-kept valid_from / valid_to","—","P2"],
+    ["Environments","dev / staging / prod projects","Branching later","P1"]
+  ]},
+  {n:"Layer 8", t:"Analytics", h:"Google BigQuery", host:"var(--gcp)", items:[
+    ["Load","Custom incremental loader (Cloud Run Job)","dlt · Pipelines at GA","P6","Change C4",1],
+    ["Transform","Dataform","dbt","P6"],
+    ["Metric definitions","One spec → Postgres views + Dataform","—","P4"],
+    ["Reporting","In-app charts via API","Data Studio · Metabase","P6"]
+  ]},
+  {n:"Ops", t:"Delivery, operations & quality", h:"GitHub + all three", host:"var(--muted)", items:[
+    ["Repo","pnpm + Turborepo monorepo, uv for Python","Plain pnpm","P1"],
+    ["Shared types","Pydantic → OpenAPI → hey-api (TS + Zod)","JSON Schema codegen","P1"],
+    ["CI/CD","Vercel Git · GitHub Actions + WIF → Cloud Run · supabase db push","—","P1"],
+    ["Infrastructure as code","OpenTofu + Google provider","Pulumi · gcloud scripts","P1"],
+    ["Errors","Sentry (web + worker)","—","P1"],
+    ["Logs & traces","Vercel Observability · Cloud Logging · OTel → Cloud Trace","Log drains","P1"],
+    ["Testing","Vitest · Playwright · pytest · pgTAP","schemathesis","P1"],
+    ["Code quality","ESLint (or Biome) · Ruff · lefthook","—","P1"],
+    ["Email","Resend + React Email","Gmail API · Postmark","P2"],
+    ["Backups","Daily backups + pg_dump + Storage → GCS copy","PITR add-on","P1"],
+    ["Cost guardrails","GCP budgets · Vercel spend mgmt · Supabase cap","—","P1"]
+  ]}
+];
+
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+document.getElementById("changes").innerHTML = CHANGES.map(([id,t,d]) =>
+  `<div class="chg"><span class="id">${id}</span><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join("");
+
+document.getElementById("layers").innerHTML = LAYERS.map(L => `
+  <section class="band" style="--host:${L.host}">
+    <div class="rail"><span class="n">${esc(L.n)}</span><span class="t">${esc(L.t)}</span><span class="h">${esc(L.h)}</span></div>
+    <div class="cards">${L.items.map(([c,pick,alts,ph,note,flag]) => `
+      <div class="card${flag ? " flag" : ""}" data-phase="${ph}">
+        <div class="top"><span class="c">${esc(c)}</span><span class="p">${ph}</span></div>
+        <span class="pick">${esc(pick)}</span>
+        ${alts && alts !== "—" ? `<span class="alt">Alt: ${esc(alts)}</span>` : ""}
+        ${note ? `<span class="note">${esc(note)}</span>` : ""}
+      </div>`).join("")}</div>
+  </section>`).join("");
+
+const layersEl = document.getElementById("layers");
+const noteEl = document.getElementById("phasenote");
+const btns = document.getElementById("phases");
+const all = document.createElement("button");
+all.type = "button"; all.textContent = "All phases"; all.setAttribute("aria-pressed","true");
+btns.appendChild(all);
+Object.keys(PHASES).forEach(p => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = p; b.dataset.p = p; b.setAttribute("aria-pressed","false");
+  b.title = PHASES[p];
+  btns.appendChild(b);
+});
+btns.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...btns.children].forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  const p = b.dataset.p;
+  const cards = layersEl.querySelectorAll(".card");
+  if (!p) { layersEl.classList.remove("dim"); cards.forEach(c => c.classList.remove("on")); noteEl.textContent = "Showing every component."; return; }
+  layersEl.classList.add("dim");
+  let n = 0;
+  cards.forEach(c => { const on = c.dataset.phase === p; c.classList.toggle("on", on); if (on) n++; });
+  noteEl.textContent = `${p} · ${PHASES[p]} ${n} components.`;
+});
+</script>
+
+</body>
+</html>
