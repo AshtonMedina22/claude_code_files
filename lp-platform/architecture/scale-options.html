@@ -8,28 +8,29 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: same blueprint language as the architecture map. End results strip → measured baseline →
-   one comparison matrix (layers × options, end results × options) → option summary cards → path → decisions. */
+/* Layout: blueprint language shared with the architecture map. End results → why sheets fail AI → real scale →
+   one comparison matrix (layers × options, results × options) → option cards → analytics readiness → path → decisions → sources. */
 :root{
   --bg:#f3f5f8; --surface:#ffffff; --ink:#15202e; --muted:#566476; --line:#d5dce5;
   --accent:#1f5fae; --accent-soft:#e5eefa; --band:#e9edf3;
-  --full:#1f5fae; --part:#7aa3d9; --none:#c9d1dc;
-  --good:#1e7a4f; --bad:#a34a12; --hl:#fff6d6; --hl-line:#c99400;
+  --full:#1f5fae; --none:#c9d1dc;
+  --good:#1e7a4f; --bad:#a34a12; --hl:#fff6d6;
   --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
   --accent:#7fb0ef; --accent-soft:#1b2a3f; --band:#131a23;
-  --full:#7fb0ef; --part:#41618a; --none:#2f3a49;
-  --good:#5cc792; --bad:#e5a54a; --hl:#3a3112; --hl-line:#e0b43a; color-scheme:dark}}
+  --full:#7fb0ef; --none:#3a4555;
+  --good:#5cc792; --bad:#e5a54a; --hl:#2e2a17; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
   --accent:#7fb0ef; --accent-soft:#1b2a3f; --band:#131a23;
-  --full:#7fb0ef; --part:#41618a; --none:#2f3a49;
-  --good:#5cc792; --bad:#e5a54a; --hl:#3a3112; --hl-line:#e0b43a; color-scheme:dark}
+  --full:#7fb0ef; --none:#3a4555;
+  --good:#5cc792; --bad:#e5a54a; --hl:#2e2a17; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+a{color:var(--accent)}
 .wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:36px}
 h1,h2,h3{margin:0;text-wrap:balance}
 h1{font-size:clamp(28px,4vw,38px);font-weight:800;letter-spacing:-.02em}
@@ -37,41 +38,60 @@ h2{font-size:21px;font-weight:700}
 h3{font-size:15px;font-weight:700}
 p{margin:0}
 .eyebrow{font:600 11px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.lede{max-width:78ch;color:var(--muted);font-size:16px}
+.lede{max-width:80ch;color:var(--muted);font-size:15.5px}
 section{display:grid;gap:14px;min-width:0}
 .sechead{display:grid;gap:6px}
 .src{font-size:12.5px;color:var(--muted)}
+.tag{font:700 10.5px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:4px 6px;white-space:nowrap}
+.tag.v{background:var(--accent-soft);color:var(--accent)}
+.tag.e{background:var(--band);color:var(--muted);border:1px dashed var(--line)}
 
-/* End results */
 .results{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .res{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:6px;align-content:start;min-width:0}
 .res.primary{border:2px solid var(--accent);background:var(--accent-soft)}
 .res .k{font:700 10.5px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-.res h3{font-size:15px}
 .res ul{margin:0;padding-left:16px;font-size:13px;color:var(--muted);display:grid;gap:3px}
 
-/* Baseline */
-.base{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:4px}
-.stat b{font-size:30px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
-.stat span{font-size:13.5px;color:var(--muted)}
+/* AI reading problem */
+.why{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start;min-width:0}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center;font-size:13px}
+.bar .track{position:relative;height:22px;background:var(--band);border-radius:6px}
+.bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--full)}
+.bar .fill.ai{background:var(--good)}
+.bar .val{position:absolute;right:8px;top:2px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.bar .lbl{font-weight:600}
+.facts3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.f{background:var(--band);border-radius:8px;padding:10px;display:grid;gap:2px;min-width:0}
+.f b{font-size:20px;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1.2}
+.f span{font-size:12.5px;color:var(--muted)}
+.fix{border-left:3px solid var(--good);padding:8px 12px;background:var(--band);border-radius:0 8px 8px 0;font-size:14px}
 
-/* Matrix */
-.mscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:900px;font-size:13.5px}
+/* tables */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+table.t th,table.t td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t th{font:600 11px/1.2 var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--band)}
+table.t tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* matrix */
+.matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:940px;font-size:13.5px}
 .matrix th,.matrix td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
-.matrix thead th{background:var(--band);position:sticky;top:0}
+.matrix thead th{background:var(--band)}
 .matrix .opt{display:grid;gap:2px}
 .matrix .opt b{font-size:15px}
 .matrix .opt span{font-size:12px;color:var(--muted);font-weight:500}
 .matrix .grp td{background:var(--band);font:700 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px}
-.matrix .lay{font-weight:700;white-space:nowrap;width:170px}
+.matrix .lay{font-weight:700;white-space:nowrap;width:180px}
 .cell{display:flex;gap:8px;align-items:flex-start}
 .pip{flex:none;width:12px;height:12px;border-radius:50%;margin-top:3px}
 .pip.full{background:var(--full)}
 .pip.part{background:linear-gradient(90deg,var(--full) 50%,transparent 50%);border:1.5px solid var(--full)}
 .pip.none{border:1.5px dashed var(--none);background:transparent}
 .cell.none{color:var(--muted)}
+.cell .add{font-weight:600}
 .matrix tr:last-child td{border-bottom:0}
 .col-on{background:var(--hl)}
 .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:var(--muted);align-items:center}
@@ -82,12 +102,9 @@ section{display:grid;gap:14px;min-width:0}
 .pick button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .controls{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
 
-/* Option cards */
 .opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .oc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
-.oc.rec{border:2px solid var(--accent)}
-.oc .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-.oc .tag{font:700 11px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--surface);background:var(--accent);border-radius:4px;padding:4px 6px;white-space:nowrap}
+.oc .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
 .oc .one{font-size:14px;color:var(--muted)}
 .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .facts div{background:var(--band);border-radius:8px;padding:8px 10px;display:grid;gap:2px;min-width:0}
@@ -98,161 +115,206 @@ section{display:grid;gap:14px;min-width:0}
 .pc.p h3{color:var(--good)} .pc.c h3{color:var(--bad)}
 .pc ul{margin:0;padding-left:16px;font-size:13.5px;display:grid;gap:2px}
 
-/* Path */
 .path{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:stretch}
 .step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;align-content:start;min-width:0}
 .step .k{font:700 11px var(--f-mono);color:var(--accent)}
 .step p{font-size:13.5px;color:var(--muted)}
 .step .proof{font-size:13px;color:var(--ink);border-top:1px solid var(--line);padding-top:6px}
 .arrow{align-self:center;color:var(--muted);font-size:22px}
-
-/* Decisions */
-.dscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.dec{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
-.dec th,.dec td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
-.dec th{font:600 11px/1.2 var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--band)}
-.dec tr:last-child td{border-bottom:0}
-footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:grid;gap:4px}
-@media (max-width:1000px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}.opts{grid-template-columns:1fr}.path{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}}
-@media (max-width:620px){.wrap{padding-inline:16px}.results,.base{grid-template-columns:1fr}}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:grid;gap:6px}
+footer ul{margin:0;padding-left:18px;display:grid;gap:2px}
+@media (max-width:1000px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}.opts,.why{grid-template-columns:1fr}.path{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}}
+@media (max-width:620px){.wrap{padding-inline:16px}.results,.facts3{grid-template-columns:1fr}.bar{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <div class="wrap">
 <header class="sechead">
-  <span class="eyebrow">L&amp;P Global Security · for discussion · 15 Oct 2026</span>
+  <span class="eyebrow">L&amp;P Global Security · for discussion · verified 15 Oct 2026</span>
   <h1>L&amp;P Platform Scale Options</h1>
-  <p class="lede">The end results leadership has asked for, what the data looks like today, and three scale options to deliver those results, compared layer by layer.</p>
+  <p class="lede">The end results leadership has asked for, why the current spreadsheet approach can’t deliver them with AI, the real scale of the data, and three build options compared layer by layer. <span class="tag v">Verified</span> marks figures checked against official sources; <span class="tag e">Estimate</span> marks planning estimates.</p>
 </header>
 
 <section aria-labelledby="results">
   <div class="sechead"><span class="eyebrow">1 · End results</span><h2 id="results">What leadership expects the platform to deliver</h2></div>
   <div class="results">
     <div class="res primary"><span class="k">Primary</span><h3>Stronger proposals</h3><ul><li>Accurate, complete, compliant proposals per RFP</li><li>Know what was strong, what failed, what to change</li><li>Staffing and price plans ready to approve</li></ul></div>
-    <div class="res"><span class="k">Growth</span><h3>Find and convert business</h3><ul><li>Which buyers to pursue, when, with what advantage</li><li>Qualified next-contact list with "why now"</li><li>Which sources and messages win customers</li></ul></div>
+    <div class="res"><span class="k">Growth</span><h3>Find and convert business</h3><ul><li>Which buyers to pursue, when, with what advantage</li><li>Qualified next-contact list with “why now”</li><li>Which sources and messages win customers</li></ul></div>
     <div class="res"><span class="k">Protection</span><h3>Protect revenue and clients</h3><ul><li>Authorization gaps and renewals flagged</li><li>Contract economics and billing exceptions explained</li><li>Client issues owned before renewal</li></ul></div>
     <div class="res"><span class="k">Readiness</span><h3>Strengthen capability</h3><ul><li>Verified past performance ready to reuse</li><li>Credential and eligibility gaps visible</li><li>Partner, expansion and training plans</li></ul></div>
     <div class="res"><span class="k">Shared</span><h3>Reusable intelligence</h3><ul><li>Every bid adds knowledge for the next</li><li>ChatGPT and Claude work from the same records</li><li>Less repeated research and re-entry</li></ul></div>
   </div>
-  <p class="src">Source: Reference sheet, Overview (intended business results) and Features (human end result per section).</p>
+  <p class="src">Source: Reference sheet, Overview (intended business results) and Features (human end result per section). Leadership has also asked for Pwin, market analysis and lead scoring.</p>
 </section>
 
-<section aria-labelledby="base">
-  <div class="sechead"><span class="eyebrow">2 · Today’s baseline</span><h2 id="base">37 bids already strain a spreadsheet</h2></div>
-  <div class="base">
-    <div class="stat"><b>87 tabs</b><span>for 37 bids in the Data Index sheet; 34 are old copies kept as version history, and agents miss data paging through them</span></div>
-    <div class="stat"><b>1.19M cells · 12%</b><span>of Google Sheets’ 10-million-cell limit per file, already used</span></div>
-    <div class="stat"><b>~310 bids</b><span>would fill the file at this rate, before any competitor or market data</span></div>
+<section aria-labelledby="why">
+  <div class="sechead"><span class="eyebrow">2 · The core problem</span><h2 id="why">AI agents can’t work accurately from spreadsheets at this size</h2>
+  <p class="lede">An AI model reads a limited amount of text at once (its context window). The current Data Index sheet is far larger than that, so agents read some tabs and miss the rest.</p></div>
+  <div class="why">
+    <div class="panel">
+      <h3>How much text, in AI tokens <span class="tag v">Verified</span></h3>
+      <div class="bars">
+        <div class="bar"><span class="lbl">Whole Data Index sheet</span><div class="track"><div class="fill" style="width:100%"></div><span class="val">~2.35M</span></div></div>
+        <div class="bar"><span class="lbl">37 current bid tabs</span><div class="track"><div class="fill" style="width:34%"></div><span class="val">~805K</span></div></div>
+        <div class="bar"><span class="lbl">Largest AI window (1M)</span><div class="track"><div class="fill ai" style="width:42.5%"></div><span class="val">1M</span></div></div>
+        <div class="bar"><span class="lbl">Standard Claude (200K)</span><div class="track"><div class="fill ai" style="width:8.5%"></div><span class="val">200K</span></div></div>
+        <div class="bar"><span class="lbl">ChatGPT app (27K–400K)</span><div class="track"><div class="fill ai" style="width:17%"></div><span class="val">≤400K</span></div></div>
+      </div>
+      <p class="src">Sheet measured 15 Oct 2026: 87 tabs, 276,873 filled cells, ~9.4M characters, at ~4 characters per token (<a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">OpenAI</a>). Context windows from secondary comparisons (<a href="https://www.morphllm.com/llm-token-limit">MorphLLM</a>, <a href="https://www.ai-toolbox.co/chatgpt-models/chatgpt-context-window-token-limits-2026">AI Toolbox</a>); they vary by model and plan.</p>
+    </div>
+    <div class="panel">
+      <h3>Why agents get confused</h3>
+      <div class="facts3">
+        <div class="f"><b>~21,800</b><span>tokens per bid; hundreds of bids ≈ 6.5M+</span></div>
+        <div class="f"><b>34 tabs</b><span>are OLD / ARCHIVE copies holding conflicting versions</span></div>
+        <div class="f"><b>60 / min</b><span>Sheets API reads per user, so agents page tab by tab</span></div>
+      </div>
+      <p style="font-size:14px">Even when text fits, models miss facts in the middle of long inputs, and accuracy falls as inputs grow (<a href="https://aclanthology.org/2024.tacl-1.9/">Liu et al., TACL 2024</a>).</p>
+      <p class="fix"><b>The fix:</b> a database with a search index. The agent asks a precise question through a tool and gets back only the matching records, a few thousand tokens instead of millions.</p>
+      <p class="src">Sheets API quota: <a href="https://developers.google.com/workspace/sheets/api/limits">Google</a>. File size is not the issue: Sheets allows 20M cells or 100 MB per file (<a href="https://support.google.com/drive/answer/37603">Google</a>).</p>
+    </div>
   </div>
-  <p class="src">Measured from the Data Index sheet on 15 Oct 2026. Limit: <a href="https://workspaceupdates.googleblog.com/2022/03/ten-million-cells-google-sheets.html" style="color:var(--accent)">Google Workspace Updates</a>.</p>
+</section>
+
+<section aria-labelledby="scale">
+  <div class="sechead"><span class="eyebrow">3 · The real scale</span><h2 id="scale">A large document and AI workload on a curated dataset</h2>
+  <p class="lede">Structured rows stay in the hundreds of thousands. What makes it enterprise-grade is the volume of documents AI has to read and the accuracy the results need.</p></div>
+  <div class="tscroll"><table class="t">
+    <thead><tr><th style="width:38%">Data</th><th>Volume</th><th style="width:12%">Status</th></tr></thead>
+    <tbody>
+      <tr><td>Federal security-guard contracts (NAICS 561612), active per year</td><td class="num">~7,600–8,200 nationally · 343–587 in Texas · ~$5.6–6.0B obligated</td><td><span class="tag v">Verified</span></td></tr>
+      <tr><td>Competing companies (federal 561612 recipients) per year</td><td class="num">~625 nationally · ~50 in Texas</td><td><span class="tag v">Verified</span></td></tr>
+      <tr><td>Federal solicitation notices per year (SAM.gov)</td><td class="num">~430–480 nationally · 7–21 in Texas (lower bound)</td><td><span class="tag v">Verified</span></td></tr>
+      <tr><td>Texas state and local solicitations (ESBD, city and county portals)</td><td class="num">~100–300 security-related per year</td><td><span class="tag e">Estimate</span></td></tr>
+      <tr><td>L&amp;P bid history to load (hundreds of bids)</td><td class="num">~20,000–120,000 pages · 2,000–10,000 files</td><td><span class="tag e">Estimate</span></td></tr>
+      <tr><td>New market documents to read per year (Texas focus)</td><td class="num">~10,000–40,000 pages</td><td><span class="tag e">Estimate</span></td></tr>
+      <tr><td>Structured records</td><td class="num">~25,000–30,000 per year · ~250,000–300,000 for a 10-year federal history</td><td><span class="tag e">Estimate</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">USAspending API queries for FY2024–FY2025 (<a href="https://api.usaspending.gov/docs/endpoints">API docs</a>); SAM.gov public notice search; <a href="https://www.txsmartbuy.gov/esbd">Texas ESBD</a>. Competitor proposals in Texas usually need Public Information Act requests; winning contracts and prices are generally public after award, while losing proposals can be withheld or redacted.</p>
 </section>
 
 <section aria-labelledby="opts">
-  <div class="sechead"><span class="eyebrow">3 · Three scale options</span><h2 id="opts">What each option includes, and which results it delivers</h2>
-  <p class="lede" style="font-size:14.5px">Each option is a stage of the same architecture. A grows into B, and B into C, without a rewrite.</p></div>
+  <div class="sechead"><span class="eyebrow">4 · Three options</span><h2 id="opts">What each option includes, and which results it delivers</h2>
+  <p class="lede">Each option builds on the one before it, on the same architecture, so nothing is rebuilt. Bold text marks what an option adds.</p></div>
   <div class="controls">
-    <div class="legend"><span><i class="pip full"></i>Included</span><span><i class="pip part"></i>Basic / partial</span><span><i class="pip none"></i>Not included</span></div>
+    <div class="legend"><span><i class="pip full"></i>Included</span><span><i class="pip part"></i>Partial</span><span><i class="pip none"></i>Not included</span></div>
     <div class="pick" role="group" aria-label="Highlight an option" id="pick">
-      <button type="button" aria-pressed="false" data-col="1">Highlight A</button>
-      <button type="button" aria-pressed="true" data-col="2">Highlight B</button>
-      <button type="button" aria-pressed="false" data-col="3">Highlight C</button>
+      <button type="button" aria-pressed="true" data-col="1">Highlight 1</button>
+      <button type="button" aria-pressed="false" data-col="2">Highlight 2</button>
+      <button type="button" aria-pressed="false" data-col="3">Highlight 3</button>
     </div>
   </div>
-  <div class="mscroll">
+  <div class="tscroll">
   <table class="matrix" id="matrix">
     <thead><tr><th></th>
-      <th><div class="opt"><b>A · Organized data hub</b><span>Replace the spreadsheet</span></div></th>
-      <th><div class="opt"><b>B · Intelligence platform</b><span>Recommended target</span></div></th>
-      <th><div class="opt"><b>C · Enterprise data &amp; AI</b><span>Forecasting at scale</span></div></th></tr></thead>
+      <th><div class="opt"><b>1 · Intelligence platform</b><span>Smallest starting point</span></div></th>
+      <th><div class="opt"><b>2 · Enterprise data &amp; AI</b><span>Pwin, price-to-win, leads, market</span></div></th>
+      <th><div class="opt"><b>3 · Full operating platform</b><span>Everything in the Reference sheet</span></div></th></tr></thead>
     <tbody id="mbody"></tbody>
   </table>
   </div>
 
   <div class="opts">
     <div class="oc">
-      <div class="top"><h3>A · Organized data hub</h3></div>
-      <p class="one">One database and document store replace the spreadsheet. Intelligence work stays mostly manual.</p>
-      <div class="facts"><div><span>Scale</span><b>L&amp;P history</b></div><div><span>Build</span><b>1–2 months</b></div><div><span>Run cost</span><b>$50–100/mo</b></div></div>
-      <div class="pc p"><h3>Pros</h3><ul><li>Removes spreadsheet limits fast</li><li>AI agents query one source, not 87 tabs</li><li>Lowest cost and upkeep</li></ul></div>
-      <div class="pc c"><h3>Cons</h3><ul><li>Extraction and entry stay manual</li><li>No automated competitor or market data</li><li>No price modeling or forecasting</li></ul></div>
-    </div>
-    <div class="oc rec">
-      <div class="top"><h3>B · Intelligence platform</h3><span class="tag">Recommended target</span></div>
-      <p class="one">Automated document intake, competitor and market data, and pricing and proposal engines turn records into bid intelligence.</p>
-      <div class="facts"><div><span>Scale</span><b>1,000s of docs</b></div><div><span>Build</span><b>3–6 months</b></div><div><span>Run cost</span><b>$150–500/mo</b></div></div>
-      <div class="pc p"><h3>Pros</h3><ul><li>Delivers the core vision across all five results</li><li>AI reads documents; people confirm</li><li>Proposals and price sheets built from data</li></ul></div>
-      <div class="pc c"><h3>Cons</h3><ul><li>Larger build, more moving parts</li><li>Staff time to verify extracted facts</li><li>No forecasting models yet</li></ul></div>
+      <div class="top"><h3>1 · Intelligence platform</h3></div>
+      <p class="one">Replaces the spreadsheet. Documents are read automatically and checked by staff; competitor awards, pricing and proposals are built from verified data; every bid outcome is recorded.</p>
+      <div class="facts"><div><span>Build</span><b>3–6 months</b></div><div><span>Run cost</span><b>$150–400/mo</b></div><div><span>Load history</span><b>$60–400 once</b></div></div>
+      <div class="pc p"><h3>Pros</h3><ul><li>Fixes the AI-reading problem with one queryable source</li><li>Delivers proposals, pricing and contract protection</li><li>Starts capturing outcome data that options 2 and 3 need</li></ul></div>
+      <div class="pc c"><h3>Cons</h3><ul><li>Pwin, leads and market analysis stay manual</li><li>Staff time to verify extracted facts</li><li>Largest single build stage</li></ul></div>
     </div>
     <div class="oc">
-      <div class="top"><h3>C · Enterprise data &amp; AI</h3></div>
-      <p class="one">A warehouse and trained models add win-probability, price-to-win and lead scoring across bids, finance and workforce data.</p>
-      <div class="facts"><div><span>Scale</span><b>Millions of rows</b></div><div><span>Build</span><b>6–12+ months</b></div><div><span>Run cost</span><b>$400–1,500/mo</b></div></div>
-      <div class="pc p"><h3>Pros</h3><ul><li>Win-probability and price-to-win forecasts</li><li>Profitability by contract, site, period</li><li>Scored leads from continuous market data</li></ul></div>
-      <div class="pc c"><h3>Cons</h3><ul><li>Models need enough past outcomes</li><li>Highest cost and complexity</li><li>Heavy load for one builder</li></ul></div>
+      <div class="top"><h3>2 · Enterprise data &amp; AI</h3></div>
+      <p class="one">Adds a BigQuery warehouse and public market data: Pwin scoring, price-to-win, recompete calendar, market analysis and lead scoring.</p>
+      <div class="facts"><div><span>Build</span><b>+3–6 months</b></div><div><span>Run cost</span><b>$400–1,100/mo</b></div><div><span>Models</span><b>Gated on data</b></div></div>
+      <div class="pc p"><h3>Pros</h3><ul><li>Price-to-win from public wage, award and bid data</li><li>Market share, competitors and recompete dates</li><li>Pwin and lead scores on every opportunity</li></ul></div>
+      <div class="pc c"><h3>Cons</h3><ul><li>Statistical Pwin needs ~300 recorded outcomes</li><li>Point-in-time backups and staging add cost</li><li>Texas bid tabs often need records requests</li></ul></div>
+    </div>
+    <div class="oc">
+      <div class="top"><h3>3 · Full operating platform</h3></div>
+      <p class="one">Adds sales and marketing effectiveness, client reviews and reputation, credentials and expansion tracking, and AI agents that run scheduled work on their own.</p>
+      <div class="facts"><div><span>Build</span><b>+3–6 months</b></div><div><span>Run cost</span><b>$1,000–2,600/mo</b></div><div><span>Paid data</span><b>+ quotes</b></div></div>
+      <div class="pc p"><h3>Pros</h3><ul><li>Covers every result in the Reference sheet</li><li>Outreach and inbound tracked to real customers</li><li>Agents handle follow-ups and recurring research</li></ul></div>
+      <div class="pc c"><h3>Cons</h3><ul><li>Highest cost; Apollo API and ZoomInfo are quote-only</li><li>Autonomous agents need tight cost and safety limits</li><li>Most for one builder to run</li></ul></div>
     </div>
   </div>
-  <p class="src">Scale, build time and monthly running cost are rough planning estimates. Costs cover hosting, database, Google Cloud processing and modest AI use, not staff time.</p>
+  <p class="src">Run costs <span class="tag v">Verified</span> are built from official list prices (Vercel, Supabase, Google Cloud Run, BigQuery, Vertex AI, Document AI, Sentry, Resend, Apollo) with stated usage assumptions, excluding staff time. Option 3 excludes Apollo’s API plan and ZoomInfo, which are quote-only. Build times <span class="tag e">Estimate</span> assume one developer.</p>
+</section>
+
+<section aria-labelledby="ready">
+  <div class="sechead"><span class="eyebrow">5 · Pwin, price-to-win, leads and market analysis</span><h2 id="ready">What ships first, and what waits for data</h2>
+  <p class="lede">Scoring can start right away as rules; statistical models become reliable only once enough outcomes are recorded. That’s why outcome capture starts in Option 1.</p></div>
+  <div class="tscroll"><table class="t">
+    <thead><tr><th style="width:16%">Capability</th><th style="width:28%">Ships first as</th><th style="width:28%">Upgrades to</th><th>What it needs</th></tr></thead>
+    <tbody>
+      <tr><td><b>Pwin</b></td><td>Weighted scorecard (incumbency, relationship, price position, past performance, competition), the standard capture practice</td><td>Calibrated statistical model, then machine learning</td><td>~300 bids with recorded outcomes supports only ~3–9 predictors; ML needs ~150–300+ recorded wins</td></tr>
+      <tr><td><b>Price-to-win</b></td><td>Should-cost plus competitor benchmarks</td><td>Ranges tuned by recorded bid outcomes</td><td>Public data: wage determinations, GSA price lists, award values, Texas bid tabulations. Doesn’t depend on L&amp;P’s win history</td></tr>
+      <tr><td><b>Lead scoring</b></td><td>Rules: fit plus trigger signals (expiring contract, new facility, RFP issued)</td><td>Predictive scoring</td><td>Logged lead outcomes; Salesforce’s model requires ≥1,000 leads with ≥120 conversions</td></tr>
+      <tr><td><b>Market analysis</b></td><td>Market size, competitor share, recompete calendar</td><td>Trends and forecasts</td><td>USAspending, SAM.gov, BLS wage data, Texas ESBD, all free</td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">Sample size: <a href="https://doi.org/10.1136/bmj.m441">Riley et al., BMJ 2020</a>; Peduzzi et al. 1996 (10 events per variable). Lead scoring: <a href="https://resources.docs.salesforce.com/242/latest/en-us/sfdc/pdf/sales_einstein_implementation_guide.pdf">Salesforce Einstein guide</a>. Pwin practice: <a href="https://www.shipleywins.com/probability-of-winning">Shipley</a>, Unanet and Loopio documentation. The predictor counts are our approximation of Riley’s criteria.</p>
 </section>
 
 <section aria-labelledby="path">
-  <div class="sechead"><span class="eyebrow">4 · Recommended path</span><h2 id="path">Build A first, grow into B, add C when the data supports it</h2></div>
+  <div class="sechead"><span class="eyebrow">6 · Recommended path</span><h2 id="path">Build 1, then 2, then 3, each proving itself before the next</h2></div>
   <div class="path">
-    <div class="step"><span class="k">STAGE A · ~1–2 MONTHS</span><b>One source of truth</b><p>Database, document store, staff web app, ChatGPT and Claude connected.</p><p class="proof"><b>Proof:</b> the Data Index sheet migrated; agents answer from one source.</p></div>
+    <div class="step"><span class="k">OPTION 1 · ~3–6 MONTHS</span><b>One trusted source</b><p>Document pipeline, verified records, pricing and proposal engines, contracts, ChatGPT and Claude connected, outcome capture on every bid.</p><p class="proof"><b>Proof:</b> one real bid end to end; agents answer from the database, not the sheet.</p></div>
     <span class="arrow" aria-hidden="true">→</span>
-    <div class="step"><span class="k">STAGE B · ~3–6 MONTHS</span><b>Bid intelligence</b><p>Document pipeline, competitor and market feeds, pricing engine, proposal output, QuickBooks and Belfry data.</p><p class="proof"><b>Proof:</b> one real bid end to end; competitor prices searchable.</p></div>
+    <div class="step"><span class="k">OPTION 2 · +3–6 MONTHS</span><b>Market and pricing intelligence</b><p>Warehouse, public market data, Pwin scorecard, price-to-win, lead scoring, recompete calendar.</p><p class="proof"><b>Proof:</b> every open opportunity shows a Pwin score and a price range with sources.</p></div>
     <span class="arrow" aria-hidden="true">→</span>
-    <div class="step"><span class="k">STAGE C · ~6–12+ MONTHS</span><b>Forecasting</b><p>Warehouse history, win-probability and price-to-win models, lead scoring.</p><p class="proof"><b>Proof:</b> price ranges backed by tested models.</p></div>
+    <div class="step"><span class="k">OPTION 3 · +3–6 MONTHS</span><b>Full operating platform</b><p>Sales and marketing tracking, client reviews and reputation, expansion tracking, autonomous scheduled agents.</p><p class="proof"><b>Proof:</b> agents complete recurring work with a full audit trail.</p></div>
   </div>
 </section>
 
 <section aria-labelledby="dec">
-  <div class="sechead"><span class="eyebrow">5 · Decisions</span><h2 id="dec">What we need to decide together</h2></div>
-  <div class="dscroll">
-  <table class="dec">
+  <div class="sechead"><span class="eyebrow">7 · Decisions</span><h2 id="dec">What we need to decide together</h2></div>
+  <div class="tscroll"><table class="t">
     <thead><tr><th style="width:18%">Decision</th><th style="width:36%">Options</th><th>Recommendation</th></tr></thead>
     <tbody>
-      <tr><td><b>Target scale</b></td><td>A · B · C</td><td>Target B, reached through A; add C once enough outcomes are recorded</td></tr>
+      <tr><td><b>Target scope</b></td><td>Option 1 · 2 · 3</td><td>Option 3 as the destination, built in order 1 → 2 → 3</td></tr>
       <tr><td><b>First priority</b></td><td>Proposals · pricing · leads · contracts</td><td>Proposals and pricing: one real bid end to end</td></tr>
-      <tr><td><b>Cloud scope</b></td><td>All Google Cloud, or Google Cloud + managed app services</td><td>Google Cloud for heavy work and analytics; managed app services (Vercel, Supabase) for speed; standard PostgreSQL keeps an all-Google move open</td></tr>
-      <tr><td><b>Data access</b></td><td>Past proposals, pricing, QuickBooks, Belfry, public records</td><td>Past proposals and pricing first; finance and workforce data in stage B</td></tr>
-      <tr><td><b>Budget</b></td><td>Running costs + optional paid add-ons</td><td>Start lean; add paid tools only when a stage needs them</td></tr>
+      <tr><td><b>Outcome capture</b></td><td>Start now, or when models are built</td><td>Start now, and backfill past bids. Pwin and price-to-win depend on it</td></tr>
+      <tr><td><b>Cloud scope</b></td><td>All Google Cloud, or Google Cloud + managed app services</td><td>Google Cloud for heavy work and analytics; managed app services for speed; standard PostgreSQL keeps an all-Google move open</td></tr>
+      <tr><td><b>Paid data</b></td><td>Apollo (API is quote-only) · ZoomInfo (quote-only) · public data only</td><td>Public data first; get Apollo and ZoomInfo quotes before Option 3</td></tr>
     </tbody>
-  </table>
-  </div>
+  </table></div>
 </section>
 
 <footer>
-  <span>Detail behind this page: DECISIONS.md, FULL-STACK.md and the architecture diagram in the claude_code_files repo.</span>
+  <span><b>How this was checked:</b> the Data Index sheet was measured directly; market volumes come from official USAspending and SAM.gov queries; costs come from official pricing pages (us-central1 list prices, 15 Oct 2026); modeling guidance comes from published research and vendor documentation. Context-window sizes are from secondary sources and vary by plan.</span>
+  <span>Detail: DECISIONS.md, FULL-STACK.md and the architecture diagram in the claude_code_files repo.</span>
 </footer>
 </div>
 
 <script>
-// [group, layer, A, B, C]; each cell = [state, text]; state: f = included, p = basic/partial, n = not included
+// rows: [group] or ["", layer, cell1, cell2, cell3]; cell = [state, text, isAdded]; state f = included, p = partial, n = not included
 const ROWS = [
   ["Technology layers"],
-  ["", "Interface", ["f","Web app: records, search, reports"], ["f","Full bid, pricing and contract workspace"], ["f","Plus executive dashboards"]],
-  ["", "Access & AI agents", ["f","Google sign-in; ChatGPT and Claude"], ["f","Per-person permissions, audit trail"], ["f","Plus data access policies"]],
-  ["", "Business logic", ["p","Pricing calculator, basic workflows"], ["f","Staffing and pricing engine, approvals"], ["f","Plus automated recommendations"]],
-  ["", "AI services", ["n","Not included"], ["f","Extraction, drafting, meaning-based search"], ["f","Plus lead scoring and model insights"]],
-  ["", "Processing", ["p","Manual upload, light parsing"], ["f","OCR pipeline, crawlers, document output"], ["f","Continuous large-scale crawling"]],
-  ["", "Integrations", ["n","Not included"], ["f","Procurement sites, Drive, QuickBooks, Belfry"], ["f","Plus Apollo, Gmail, more feeds"]],
-  ["", "Operational data", ["f","PostgreSQL + document storage"], ["f","Verified facts, history, search index"], ["f","Full history on every record"]],
-  ["", "Analytics", ["n","Database reports only"], ["p","Metrics and comparisons in the database"], ["f","BigQuery warehouse, Pwin and price models"]],
-  ["", "Operations", ["p","Backups, monitoring"], ["f","Staging + production, alerts, backups"], ["f","Governance, recovery, cost controls"]],
+  ["", "Interface", ["f","Bid, pricing and contract workspace"], ["f","Market and pipeline dashboards",1], ["f","Sales, client and executive views",1]],
+  ["", "Access & AI agents", ["f","Per-person permissions, ChatGPT and Claude, audit"], ["f","Same as option 1"], ["f","Autonomous scheduled agents",1]],
+  ["", "Business logic", ["f","Staffing and pricing engine, approvals"], ["f","Pwin scorecard, price-to-win, lead scoring",1], ["f","Outreach sequences, records-request follow-up",1]],
+  ["", "AI services", ["f","Extraction, drafting, meaning-based search"], ["f","Model insights on scores",1], ["f","Agent automation at volume",1]],
+  ["", "Processing", ["f","OCR pipeline, key portal crawlers, document output"], ["f","More portals, continuous crawling",1], ["f","24/7 crawling and enrichment",1]],
+  ["", "Integrations", ["f","Procurement sites, Drive, QuickBooks, Belfry files"], ["f","USAspending, SAM.gov, wage determinations, bid tabs",1], ["f","Apollo / ZoomInfo, Gmail, review and search-visibility tools",1]],
+  ["", "Operational data", ["f","Verified facts, history, outcome capture"], ["f","Staging environment, point-in-time recovery",1], ["f","Same as option 2"]],
+  ["", "Analytics", ["p","Metrics and comparisons in the database"], ["f","BigQuery warehouse, Pwin and price models",1], ["f","Marketing, client and expansion analytics",1]],
+  ["", "Operations", ["f","Backups, monitoring, alerts"], ["f","Staging + production, recovery",1], ["f","Agent cost and safety limits",1]],
   ["End results delivered"],
-  ["", "Stronger proposals", ["p","Organized content; manual analysis"], ["f","Data-driven drafting, compliance, pricing"], ["f","Plus win-probability guidance"]],
-  ["", "Find & convert business", ["n","Manual"], ["p","Opportunity discovery and watchlists"], ["f","Scored leads and buyer targeting"]],
-  ["", "Protect revenue & clients", ["p","Contract records and renewal dates"], ["f","Billing and hours reconciliation, alerts"], ["f","Plus profitability analytics"]],
-  ["", "Strengthen capability", ["p","Past performance records"], ["f","Credentials, eligibility, reusable evidence"], ["f","Same as B"]],
-  ["", "Reusable intelligence", ["p","One source agents can query"], ["f","Every bid feeds the next"], ["f","Plus forecasting from history"]]
+  ["", "Stronger proposals", ["f","Data-driven drafting, compliance, pricing"], ["f","Plus Pwin and price-to-win guidance",1], ["f","Same as option 2"]],
+  ["", "Find & convert business", ["p","Opportunity discovery and watchlists"], ["f","Market analysis, recompete calendar, scored leads",1], ["f","Outreach and conversion tracking",1]],
+  ["", "Protect revenue & clients", ["f","Contracts, renewals, billing reconciliation"], ["f","Plus profitability analytics",1], ["f","Client reviews and reputation",1]],
+  ["", "Strengthen capability", ["p","Past performance and credentials"], ["p","Eligibility gaps against the market",1], ["f","Partners, expansion, training academy",1]],
+  ["", "Reusable intelligence", ["f","Every bid feeds the next"], ["f","Plus forecasting from history",1], ["f","Agents do recurring work",1]]
 ];
 const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
 const cls = {f:"full", p:"part", n:"none"};
+const lab = {f:"Included", p:"Partial", n:"Not included"};
 document.getElementById("mbody").innerHTML = ROWS.map(r => r.length === 1
   ? `<tr class="grp"><td colspan="4">${esc(r[0])}</td></tr>`
-  : `<tr><td class="lay">${esc(r[1])}</td>${[r[2],r[3],r[4]].map(([s,t]) =>
-      `<td><div class="cell ${cls[s] === "none" ? "none" : ""}"><i class="pip ${cls[s]}" role="img" aria-label="${cls[s] === "full" ? "Included" : cls[s] === "part" ? "Basic" : "Not included"}"></i><span>${esc(t)}</span></div></td>`).join("")}</tr>`
+  : `<tr><td class="lay">${esc(r[1])}</td>${[r[2],r[3],r[4]].map(([s,t,a]) =>
+      `<td><div class="cell ${s === "n" ? "none" : ""}"><i class="pip ${cls[s]}" role="img" aria-label="${lab[s]}"></i><span class="${a ? "add" : ""}">${esc(t)}</span></div></td>`).join("")}</tr>`
 ).join("");
 
 const matrix = document.getElementById("matrix");
@@ -268,7 +330,7 @@ pick.addEventListener("click", e => {
   [...pick.children].forEach(x => x.setAttribute("aria-pressed", String(x === b && on)));
   highlight(on ? Number(b.dataset.col) : -1);
 });
-highlight(2);
+highlight(1);
 </script>
 
 </body>
