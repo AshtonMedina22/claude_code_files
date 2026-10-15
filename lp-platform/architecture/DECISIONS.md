@@ -10,16 +10,16 @@ An internal **business development (BD) lifecycle platform** for a security serv
 
 Avoid the name "Contract Intelligence Platform". That term means AI analysis of signed contracts, which is only the post-award module.
 
-## Open question
+## Status
 
-**How far Google Cloud goes is undecided.** This version keeps Vercel (web app, MCP) and Supabase (database, files, sign-in) with Google Cloud for compute and analytics. The alternative, everything on Google Cloud, is in [history/cursor-all-gcp/](history/cursor-all-gcp/DECISIONS.md). A Cursor agent wrote it, and the owner has not adopted it.
+**Decided by the owner, 14 Oct 2026:** v3 is the platform architecture. Google Cloud runs compute and analytics; Vercel hosts the web app, API and MCP server; Supabase holds the database, files and sign-in. An all-Google-Cloud alternative (written by a Cursor agent, not adopted) is kept in [history/cursor-all-gcp/](history/cursor-all-gcp/DECISIONS.md) for reference. Owner-facing summary: [L&P Platform Tech Stack](https://claude.ai/code/artifact/ea5ffbd5-4c22-4601-89c9-5c177a9d9faa).
 
 ## Platform assignments
 
 | Platform | Hosts |
 | --- | --- |
 | Vercel | Next.js web app, API, MCP server, Vercel Workflow (coordination) |
-| Supabase | Postgres system of record, Storage evidence vault, Auth + OAuth 2.1 server for agents |
+| Supabase | Postgres system of record, Storage evidence vault, Auth (staff sign in with L&P Google accounts) + OAuth 2.1 server for agents |
 | Google Cloud | Cloud Run services and jobs (all background compute), BigQuery, Dataform, Artifact Registry, Secret Manager, Cloud Scheduler, Cloud Logging/Monitoring |
 | Cross-cloud | Vercel → GCP uses Workload Identity Federation (OIDC). No shared secrets. |
 
@@ -34,6 +34,7 @@ Avoid the name "Contract Intelligence Platform". That term means AI analysis of 
 7. **Workflows only where work waits** on a person or an outside system.
 8. **Metrics defined once.** Postgres runs live metrics; Dataform models use the same definitions and must reconcile with them.
 9. **Internal users only.** Buyers, prospects, clients and competitors are records. No portals.
+10. **Stay portable to Google Cloud.** Use Supabase for sign-in and file storage only. Keep business rules in the platform's own code and plain PostgreSQL, never in Supabase-only features, so the database can move to Cloud SQL as a planned migration.
 
 ## Layers
 
