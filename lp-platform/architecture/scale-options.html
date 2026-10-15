@@ -6,360 +6,231 @@
 <title>L&amp;P Platform Scale Options</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: blueprint language shared with the architecture map. End results → why sheets fail AI → real scale →
-   one comparison matrix (layers × options, results × options) → option cards → analytics readiness → path → decisions → sources. */
+/* Layout: two pages. Page 1 = the goals and what each requires. Page 2 = layer diagram:
+   a data-flow strip, then a 9-layer × 3-option block grid colored by layer group. */
 :root{
-  --bg:#f3f5f8; --surface:#ffffff; --ink:#15202e; --muted:#566476; --line:#d5dce5;
-  --accent:#1f5fae; --accent-soft:#e5eefa; --band:#e9edf3;
-  --full:#1f5fae; --none:#c9d1dc;
-  --good:#1e7a4f; --bad:#a34a12; --hl:#fff6d6;
-  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#15202e; --muted:#566476; --line:#d5dce5; --band:#e9edf3;
+  --accent:#1f5fae; --accent-soft:#e5eefa;
+  --g-use:#2563a8; --g-use-soft:#e3edf8;
+  --g-int:#6b4aa8; --g-int-soft:#eee8f7;
+  --g-data:#0e7a74; --g-data-soft:#e0f1ef;
+  --g-ops:#5b6577; --g-ops-soft:#eceef2;
+  --f:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
-  --accent:#7fb0ef; --accent-soft:#1b2a3f; --band:#131a23;
-  --full:#7fb0ef; --none:#3a4555;
-  --good:#5cc792; --bad:#e5a54a; --hl:#2e2a17; color-scheme:dark}}
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443; --band:#131a23;
+  --accent:#7fb0ef; --accent-soft:#1b2a3f;
+  --g-use:#7fb0ef; --g-use-soft:#1b2a3f; --g-int:#b39ae6; --g-int-soft:#2a2340;
+  --g-data:#4fc9c1; --g-data-soft:#173634; --g-ops:#9aa7b8; --g-ops-soft:#222a36; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
-  --accent:#7fb0ef; --accent-soft:#1b2a3f; --band:#131a23;
-  --full:#7fb0ef; --none:#3a4555;
-  --good:#5cc792; --bad:#e5a54a; --hl:#2e2a17; color-scheme:dark}
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443; --band:#131a23;
+  --accent:#7fb0ef; --accent-soft:#1b2a3f;
+  --g-use:#7fb0ef; --g-use-soft:#1b2a3f; --g-int:#b39ae6; --g-int-soft:#2a2340;
+  --g-data:#4fc9c1; --g-data-soft:#173634; --g-ops:#9aa7b8; --g-ops-soft:#222a36; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
-a{color:var(--accent)}
-.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:36px}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--f);margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:28px 48px;display:grid;gap:40px}
 h1,h2,h3{margin:0;text-wrap:balance}
-h1{font-size:clamp(28px,4vw,38px);font-weight:800;letter-spacing:-.02em}
-h2{font-size:21px;font-weight:700}
+h1{font-size:clamp(26px,3.6vw,34px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:20px;font-weight:700}
 h3{font-size:15px;font-weight:700}
 p{margin:0}
-.eyebrow{font:600 11px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.lede{max-width:80ch;color:var(--muted);font-size:15.5px}
+.eyebrow{font:600 11px/1 var(--f);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:82ch;color:var(--muted)}
 section{display:grid;gap:14px;min-width:0}
-.sechead{display:grid;gap:6px}
-.src{font-size:12.5px;color:var(--muted)}
-.tag{font:700 10.5px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:4px 6px;white-space:nowrap}
-.tag.v{background:var(--accent-soft);color:var(--accent)}
-.tag.e{background:var(--band);color:var(--muted);border:1px dashed var(--line)}
+.head{display:grid;gap:6px}
 
-.results{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-.res{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:6px;align-content:start;min-width:0}
-.res.primary{border:2px solid var(--accent);background:var(--accent-soft)}
-.res .k{font:700 10.5px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-.res ul{margin:0;padding-left:16px;font-size:13px;color:var(--muted);display:grid;gap:3px}
+/* Page 1: goals */
+.goals{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.goal{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;min-width:0}
+.goal.primary{border:2px solid var(--accent);background:var(--accent-soft)}
+.goal .k{font:700 10.5px/1 var(--f);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.goal ul{margin:0;padding-left:16px;font-size:13px;display:grid;gap:3px;align-content:start}
+.needs{border-top:1px solid var(--line);padding-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.needs span{font-size:11.5px;font-weight:600;padding:3px 7px;border-radius:999px;background:var(--band);color:var(--ink)}
+.asks{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.asks b{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.asks div{display:flex;flex-wrap:wrap;gap:6px}
+.asks span{font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--accent);color:var(--accent)}
+.loop{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.loop div{padding:10px 12px;border-right:1px solid var(--line);display:grid;gap:2px;min-width:0}
+.loop div:last-child{border-right:0;background:var(--accent-soft)}
+.loop b{font-size:13.5px}
+.loop span{font-size:12px;color:var(--muted)}
+.src{font-size:12px;color:var(--muted)}
 
-/* AI reading problem */
-.why{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start;min-width:0}
-.bars{display:grid;gap:10px}
-.bar{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center;font-size:13px}
-.bar .track{position:relative;height:22px;background:var(--band);border-radius:6px}
-.bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--full)}
-.bar .fill.ai{background:var(--good)}
-.bar .val{position:absolute;right:8px;top:2px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
-.bar .lbl{font-weight:600}
-.facts3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.f{background:var(--band);border-radius:8px;padding:10px;display:grid;gap:2px;min-width:0}
-.f b{font-size:20px;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1.2}
-.f span{font-size:12.5px;color:var(--muted)}
-.fix{border-left:3px solid var(--good);padding:8px 12px;background:var(--band);border-radius:0 8px 8px 0;font-size:14px}
+/* Page 2: layers */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px}
+.fs{flex:1 1 140px;border-radius:8px;padding:8px 10px;display:grid;gap:2px;min-width:0}
+.fs b{font-size:13px}
+.fs span{font-size:11.5px}
+.fs.src2{background:var(--band);color:var(--ink)}
+.fs.data{background:var(--g-data-soft);border-left:4px solid var(--g-data)}
+.fs.int{background:var(--g-int-soft);border-left:4px solid var(--g-int)}
+.fs.use{background:var(--g-use-soft);border-left:4px solid var(--g-use)}
+.fa{align-self:center;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:150px repeat(3,minmax(0,1fr));gap:6px 10px;align-items:stretch}
+.colhead{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
+.colhead b{font-size:14.5px}
+.colhead span{font-size:12px;color:var(--muted)}
+.ln{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.ln i{width:10px;height:10px;border-radius:3px;flex:none}
+.blk{border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.35;display:flex;gap:6px;align-items:flex-start;min-width:0}
+.blk .plus{flex:none;font-weight:800;font-size:12px;line-height:1.35}
+.use{--c:var(--g-use);--s:var(--g-use-soft)} .int{--c:var(--g-int);--s:var(--g-int-soft)}
+.data{--c:var(--g-data);--s:var(--g-data-soft)} .ops{--c:var(--g-ops);--s:var(--g-ops-soft)}
+.ln i{background:var(--c)}
+.blk.f{background:var(--s);border:1.5px solid var(--c)}
+.blk.p{background:repeating-linear-gradient(135deg,var(--s) 0 6px,transparent 6px 12px);border:1.5px solid var(--c)}
+.blk.a{background:var(--c);color:var(--surface);border:1.5px solid var(--c);font-weight:600}
+.blk.a .plus{color:var(--surface)}
+.key{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);align-items:center}
+.key span{display:inline-flex;gap:6px;align-items:center}
+.key em{display:inline-block;width:22px;height:12px;border-radius:3px;font-style:normal}
+.note{font-size:13px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--g-data);border-radius:8px;padding:10px 14px}
 
-/* tables */
-.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
-table.t th,table.t td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
-table.t th{font:600 11px/1.2 var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--band)}
-table.t tr:last-child td{border-bottom:0}
-td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
-
-/* matrix */
-.matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:940px;font-size:13.5px}
-.matrix th,.matrix td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
-.matrix thead th{background:var(--band)}
-.matrix .opt{display:grid;gap:2px}
-.matrix .opt b{font-size:15px}
-.matrix .opt span{font-size:12px;color:var(--muted);font-weight:500}
-.matrix .grp td{background:var(--band);font:700 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px}
-.matrix .lay{font-weight:700;white-space:nowrap;width:180px}
-.cell{display:flex;gap:8px;align-items:flex-start}
-.pip{flex:none;width:12px;height:12px;border-radius:50%;margin-top:3px}
-.pip.full{background:var(--full)}
-.pip.part{background:linear-gradient(90deg,var(--full) 50%,transparent 50%);border:1.5px solid var(--full)}
-.pip.none{border:1.5px dashed var(--none);background:transparent}
-.cell.none{color:var(--muted)}
-.cell .add{font-weight:600}
-.matrix tr:last-child td{border-bottom:0}
-.col-on{background:var(--hl)}
-.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:var(--muted);align-items:center}
-.legend span{display:inline-flex;gap:6px;align-items:center}
-.pick{display:flex;flex-wrap:wrap;gap:6px}
-.pick button{font:600 13px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
-.pick button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
-.pick button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.controls{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
-
-.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.oc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
-.oc .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
-.oc .one{font-size:14px;color:var(--muted)}
-.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.facts div{background:var(--band);border-radius:8px;padding:8px 10px;display:grid;gap:2px;min-width:0}
-.facts span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
-.facts b{font-size:14px;font-variant-numeric:tabular-nums}
-.pc{display:grid;gap:4px}
-.pc h3{font-size:13px}
-.pc.p h3{color:var(--good)} .pc.c h3{color:var(--bad)}
-.pc ul{margin:0;padding-left:16px;font-size:13.5px;display:grid;gap:2px}
-
-.path{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:stretch}
-.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;align-content:start;min-width:0}
-.step .k{font:700 11px var(--f-mono);color:var(--accent)}
-.step p{font-size:13.5px;color:var(--muted)}
-.step .proof{font-size:13px;color:var(--ink);border-top:1px solid var(--line);padding-top:6px}
-.arrow{align-self:center;color:var(--muted);font-size:22px}
-footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:grid;gap:6px}
-footer ul{margin:0;padding-left:18px;display:grid;gap:2px}
-@page{size:letter landscape;margin:0.4in}
+@page{size:letter landscape;margin:0.35in}
 @media print{
-  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:12.5px}
-  .wrap{max-width:none;padding:0;gap:22px}
-  .tscroll{overflow:visible}
-  .matrix,table.t{min-width:0}
-  .pick{display:none}
-  .panel,.oc,.res,.step,tr{break-inside:avoid}
-  section{break-inside:auto}
-  .sechead{break-after:avoid}
-  .wrap .results{grid-template-columns:repeat(5,minmax(0,1fr))}
-  .wrap .opts{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .wrap .why{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
-  .wrap .path{grid-template-columns:1fr auto 1fr auto 1fr}
-  .wrap .arrow{transform:none}
-  .wrap .col-on{background:transparent}
-  .wrap .opts{break-inside:avoid}
-  .tscroll{break-inside:avoid;border-radius:0}
-  thead{display:table-row-group}
-  .matrix{font-size:11.5px}
-  .matrix th,.matrix td{padding:5px 10px}
-  .matrix .opt b{font-size:13px}
-  .matrix .lay{width:150px}
-  .matrix .grp td{padding:5px 10px}
-  section[aria-labelledby="path"],section[aria-labelledby="ready"],section[aria-labelledby="scale"],section[aria-labelledby="dec"]{break-inside:avoid}
-  .wrap thead .col-on{background:var(--band)}
-  footer span:last-child{display:none}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wrap{max-width:none;padding:0;gap:16px}
+  .page2{break-before:page}
+  .wrap .goals{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .wrap .grid{grid-template-columns:140px repeat(3,minmax(0,1fr))}
+  .wrap .loop{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .blk{padding:5px 9px;font-size:11.5px}
+  section.page2{break-inside:avoid}
+  .wrap > header .lede{display:none}
+  .wrap > header{gap:4px}
+  h1{font-size:28px}
+  section{gap:10px}
+  .goal{padding:11px;gap:6px}
+  .goal ul{font-size:12px;gap:2px}
+  .needs span{font-size:10.5px;padding:2px 6px}
+  .loop div{padding:8px 10px}
+  .asks{padding:8px 14px}
 }
-@media (max-width:1000px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}.opts,.why{grid-template-columns:1fr}.path{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}}
-@media (max-width:620px){.wrap{padding-inline:16px}.results,.facts3{grid-template-columns:1fr}.bar{grid-template-columns:1fr}}
+@media (max-width:900px){
+  .goals{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .loop{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gscroll{overflow-x:auto}
+  .grid{min-width:860px}
+}
+@media (max-width:560px){.wrap{padding-inline:16px}.goals{grid-template-columns:1fr}.asks{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-<header class="sechead">
-  <span class="eyebrow">L&amp;P Global Security · for discussion · verified 15 Oct 2026</span>
+<header class="head">
+  <span class="eyebrow">L&amp;P Global Security · for discussion · October 2026</span>
   <h1>L&amp;P Platform Scale Options</h1>
-  <p class="lede">The end results leadership has asked for, why the current spreadsheet approach can’t deliver them with AI, the real scale of the data, and three build options compared layer by layer. <span class="tag v">Verified</span> marks figures checked against official sources; <span class="tag e">Estimate</span> marks planning estimates.</p>
+  <p class="lede">Page 1: my understanding of what leadership expects the platform to deliver. Page 2: the technology layers needed, and how three build options differ layer by layer.</p>
 </header>
 
-<section aria-labelledby="results">
-  <div class="sechead"><span class="eyebrow">1 · End results</span><h2 id="results">What leadership expects the platform to deliver</h2></div>
-  <div class="results">
-    <div class="res primary"><span class="k">Primary</span><h3>Stronger proposals</h3><ul><li>Accurate, complete, compliant proposals per RFP</li><li>Know what was strong, what failed, what to change</li><li>Staffing and price plans ready to approve</li></ul></div>
-    <div class="res"><span class="k">Growth</span><h3>Find and convert business</h3><ul><li>Which buyers to pursue, when, with what advantage</li><li>Qualified next-contact list with “why now”</li><li>Which sources and messages win customers</li></ul></div>
-    <div class="res"><span class="k">Protection</span><h3>Protect revenue and clients</h3><ul><li>Authorization gaps and renewals flagged</li><li>Contract economics and billing exceptions explained</li><li>Client issues owned before renewal</li></ul></div>
-    <div class="res"><span class="k">Readiness</span><h3>Strengthen capability</h3><ul><li>Verified past performance ready to reuse</li><li>Credential and eligibility gaps visible</li><li>Partner, expansion and training plans</li></ul></div>
-    <div class="res"><span class="k">Shared</span><h3>Reusable intelligence</h3><ul><li>Every bid adds knowledge for the next</li><li>ChatGPT and Claude work from the same records</li><li>Less repeated research and re-entry</li></ul></div>
+<section aria-labelledby="g">
+  <div class="head"><span class="eyebrow">1 · The goals</span><h2 id="g">Five business results, and what each one requires the platform to do</h2></div>
+  <div class="goals">
+    <div class="goal primary"><span class="k">Primary</span><h3>Stronger proposals</h3>
+      <ul><li>Accurate, complete, compliant proposals for each RFP</li><li>Know what was strong, what failed and what to change</li><li>Staffing and price plans leadership can approve</li></ul>
+      <div class="needs"><span>Document intake</span><span>Compliance matrix</span><span>Pricing engine</span><span>Win/loss history</span><span>Price-to-win</span></div></div>
+    <div class="goal"><span class="k">Growth</span><h3>Find and convert business</h3>
+      <ul><li>Which buyers to pursue, when, and with what advantage</li><li>A qualified next-contact list with “why now”</li><li>Which sources and messages win customers</li></ul>
+      <div class="needs"><span>Market analysis</span><span>Recompete calendar</span><span>Lead scoring</span><span>Pwin</span><span>Outreach tracking</span></div></div>
+    <div class="goal"><span class="k">Protection</span><h3>Protect revenue and clients</h3>
+      <ul><li>Authorization gaps and renewals flagged in time</li><li>Contract economics and billing exceptions explained</li><li>Client issues owned before renewal</li></ul>
+      <div class="needs"><span>Contract records</span><span>QuickBooks + Belfry</span><span>Alerts</span><span>Client reviews</span></div></div>
+    <div class="goal"><span class="k">Readiness</span><h3>Strengthen capability</h3>
+      <ul><li>Verified past performance ready to reuse</li><li>Credential and eligibility gaps visible</li><li>Partner, expansion and training plans</li></ul>
+      <div class="needs"><span>Evidence library</span><span>Credential tracking</span><span>Expansion tracking</span></div></div>
+    <div class="goal"><span class="k">Shared</span><h3>Reusable intelligence</h3>
+      <ul><li>Every bid adds knowledge for the next</li><li>ChatGPT and Claude work from the same records</li><li>Less repeated research and re-entry</li></ul>
+      <div class="needs"><span>One source of truth</span><span>AI agent access</span><span>Automation</span></div></div>
   </div>
-  <p class="src">Source: Reference sheet, Overview (intended business results) and Features (human end result per section). Leadership has also asked for Pwin, market analysis and lead scoring.</p>
-</section>
-
-<section aria-labelledby="why">
-  <div class="sechead"><span class="eyebrow">2 · The core problem</span><h2 id="why">AI agents can’t work accurately from spreadsheets at this size</h2>
-  <p class="lede">An AI model reads a limited amount of text at once (its context window). The current Data Index sheet is far larger than that, so agents read some tabs and miss the rest.</p></div>
-  <div class="why">
-    <div class="panel">
-      <h3>How much text, in AI tokens <span class="tag v">Verified</span></h3>
-      <div class="bars">
-        <div class="bar"><span class="lbl">Whole Data Index sheet</span><div class="track"><div class="fill" style="width:100%"></div><span class="val">~2.35M</span></div></div>
-        <div class="bar"><span class="lbl">37 current bid tabs</span><div class="track"><div class="fill" style="width:34%"></div><span class="val">~805K</span></div></div>
-        <div class="bar"><span class="lbl">Largest AI window (1M)</span><div class="track"><div class="fill ai" style="width:42.5%"></div><span class="val">1M</span></div></div>
-        <div class="bar"><span class="lbl">Standard Claude (200K)</span><div class="track"><div class="fill ai" style="width:8.5%"></div><span class="val">200K</span></div></div>
-        <div class="bar"><span class="lbl">ChatGPT app (27K–400K)</span><div class="track"><div class="fill ai" style="width:17%"></div><span class="val">≤400K</span></div></div>
-      </div>
-      <p class="src">Sheet measured 15 Oct 2026: 87 tabs, 276,873 filled cells, ~9.4M characters, at ~4 characters per token (<a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">OpenAI</a>). Context windows from secondary comparisons (<a href="https://www.morphllm.com/llm-token-limit">MorphLLM</a>, <a href="https://www.ai-toolbox.co/chatgpt-models/chatgpt-context-window-token-limits-2026">AI Toolbox</a>); they vary by model and plan.</p>
-    </div>
-    <div class="panel">
-      <h3>Why agents get confused</h3>
-      <div class="facts3">
-        <div class="f"><b>~21,800</b><span>tokens per bid; hundreds of bids ≈ 6.5M+</span></div>
-        <div class="f"><b>34 tabs</b><span>are OLD / ARCHIVE copies holding conflicting versions</span></div>
-        <div class="f"><b>60 / min</b><span>Sheets API reads per user, so agents page tab by tab</span></div>
-      </div>
-      <p style="font-size:14px">Even when text fits, models miss facts in the middle of long inputs, and accuracy falls as inputs grow (<a href="https://aclanthology.org/2024.tacl-1.9/">Liu et al., TACL 2024</a>).</p>
-      <p class="fix"><b>The fix:</b> a database with a search index. The agent asks a precise question through a tool and gets back only the matching records, a few thousand tokens instead of millions.</p>
-      <p class="src">Sheets API quota: <a href="https://developers.google.com/workspace/sheets/api/limits">Google</a>. File size is not the issue: Sheets allows 20M cells or 100 MB per file (<a href="https://support.google.com/drive/answer/37603">Google</a>).</p>
-    </div>
+  <div class="asks"><b>Also requested</b><div><span>Pwin (probability of win)</span><span>Price-to-win</span><span>Market analysis</span><span>Lead scoring</span><span>AI automation for speed and accuracy</span></div></div>
+  <div class="loop" aria-label="How the work flows">
+    <div><b>1 · Collect</b><span>RFPs, our bids, competitor awards, market data</span></div>
+    <div><b>2 · Verify</b><span>AI extracts, staff confirm, every fact sourced</span></div>
+    <div><b>3 · Analyze</b><span>Comparisons, Pwin, price-to-win, leads</span></div>
+    <div><b>4 · Decide</b><span>Bid or not, staffing, price</span></div>
+    <div><b>5 · Produce</b><span>Proposal, forms, price sheets</span></div>
+    <div><b>6 · Learn</b><span>Outcome and feedback feed the next bid</span></div>
   </div>
+  <p class="src">Source: the platform Reference sheet (Overview and Features tabs) and leadership requests.</p>
 </section>
 
-<section aria-labelledby="scale">
-  <div class="sechead"><span class="eyebrow">3 · The real scale</span><h2 id="scale">A large document and AI workload on a curated dataset</h2>
-  <p class="lede">Structured rows stay in the hundreds of thousands. What makes it enterprise-grade is the volume of documents AI has to read and the accuracy the results need.</p></div>
-  <div class="tscroll"><table class="t">
-    <thead><tr><th style="width:38%">Data</th><th>Volume</th><th style="width:12%">Status</th></tr></thead>
-    <tbody>
-      <tr><td>Federal security-guard contracts (NAICS 561612), active per year</td><td class="num">~7,600–8,200 nationally · 343–587 in Texas · ~$5.6–6.0B obligated</td><td><span class="tag v">Verified</span></td></tr>
-      <tr><td>Competing companies (federal 561612 recipients) per year</td><td class="num">~625 nationally · ~50 in Texas</td><td><span class="tag v">Verified</span></td></tr>
-      <tr><td>Federal solicitation notices per year (SAM.gov)</td><td class="num">~430–480 nationally · 7–21 in Texas (lower bound)</td><td><span class="tag v">Verified</span></td></tr>
-      <tr><td>Texas state and local solicitations (ESBD, city and county portals)</td><td class="num">~100–300 security-related per year</td><td><span class="tag e">Estimate</span></td></tr>
-      <tr><td>L&amp;P bid history to load (hundreds of bids)</td><td class="num">~20,000–120,000 pages · 2,000–10,000 files</td><td><span class="tag e">Estimate</span></td></tr>
-      <tr><td>New market documents to read per year (Texas focus)</td><td class="num">~10,000–40,000 pages</td><td><span class="tag e">Estimate</span></td></tr>
-      <tr><td>Structured records</td><td class="num">~25,000–30,000 per year · ~250,000–300,000 for a 10-year federal history</td><td><span class="tag e">Estimate</span></td></tr>
-    </tbody>
-  </table></div>
-  <p class="src">USAspending API queries for FY2024–FY2025 (<a href="https://api.usaspending.gov/docs/endpoints">API docs</a>); SAM.gov public notice search; <a href="https://www.txsmartbuy.gov/esbd">Texas ESBD</a>. Competitor proposals in Texas usually need Public Information Act requests; winning contracts and prices are generally public after award, while losing proposals can be withheld or redacted.</p>
-</section>
-
-<section aria-labelledby="opts">
-  <div class="sechead"><span class="eyebrow">4 · Three options</span><h2 id="opts">What each option includes, and which results it delivers</h2>
-  <p class="lede">Each option builds on the one before it, on the same architecture, so nothing is rebuilt. Bold text marks what an option adds.</p></div>
-  <div class="controls">
-    <div class="legend"><span><i class="pip full"></i>Included</span><span><i class="pip part"></i>Partial</span><span><i class="pip none"></i>Not included</span></div>
-    <div class="pick" role="group" aria-label="Highlight an option" id="pick">
-      <button type="button" aria-pressed="true" data-col="1">Highlight 1</button>
-      <button type="button" aria-pressed="false" data-col="2">Highlight 2</button>
-      <button type="button" aria-pressed="false" data-col="3">Highlight 3</button>
-    </div>
+<section class="page2" aria-labelledby="l">
+  <div class="head"><span class="eyebrow">2 · The technology layers</span><h2 id="l">Nine layers; each option builds on the one before</h2></div>
+  <div class="flow" aria-label="How the layers connect">
+    <div class="fs src2"><b>Sources</b><span>RFPs, past bids, public awards, QuickBooks, Belfry</span></div><span class="fa">→</span>
+    <div class="fs data"><b>Integrations + processing</b><span>pull, read and extract</span></div><span class="fa">→</span>
+    <div class="fs data"><b>Operational data</b><span>verified facts and documents</span></div><span class="fa">→</span>
+    <div class="fs int"><b>Logic, AI + analytics</b><span>pricing, scoring, models</span></div><span class="fa">→</span>
+    <div class="fs use"><b>Interface + AI agents</b><span>staff, ChatGPT and Claude</span></div>
   </div>
-  <div class="tscroll">
-  <table class="matrix" id="matrix">
-    <thead><tr><th></th>
-      <th><div class="opt"><b>1 · Intelligence platform</b><span>Smallest starting point</span></div></th>
-      <th><div class="opt"><b>2 · Enterprise data &amp; AI</b><span>Pwin, price-to-win, leads, market</span></div></th>
-      <th><div class="opt"><b>3 · Full operating platform</b><span>Everything in the Reference sheet</span></div></th></tr></thead>
-    <tbody id="mbody"></tbody>
-  </table>
+  <div class="key">
+    <span><em style="background:var(--g-use)"></em>Use</span><span><em style="background:var(--g-int)"></em>Intelligence</span><span><em style="background:var(--g-data)"></em>Data</span><span><em style="background:var(--g-ops)"></em>Operations</span>
+    <span style="margin-left:12px"><em style="background:var(--g-data-soft);border:1.5px solid var(--g-data)"></em>Included</span>
+    <span><em style="background:repeating-linear-gradient(135deg,var(--g-data-soft) 0 4px,transparent 4px 8px);border:1.5px solid var(--g-data)"></em>Partial</span>
+    <span><em style="background:var(--g-data)"></em>+ Added by this option</span>
   </div>
+  <div class="gscroll">
+  <div class="grid">
+    <div></div>
+    <div class="colhead"><b>1 · Intelligence platform</b><span>Smallest real starting point</span></div>
+    <div class="colhead"><b>2 · Enterprise data &amp; AI</b><span>Pwin, price-to-win, leads, market</span></div>
+    <div class="colhead"><b>3 · Full operating platform</b><span>Everything in the Reference sheet</span></div>
 
-  <div class="opts">
-    <div class="oc">
-      <div class="top"><h3>1 · Intelligence platform</h3></div>
-      <p class="one">Replaces the spreadsheet. Documents are read automatically and checked by staff; competitor awards, pricing and proposals are built from verified data; every bid outcome is recorded.</p>
-      <div class="facts"><div><span>Build</span><b>3–6 months</b></div><div><span>Run cost</span><b>$150–400/mo</b></div><div><span>Load history</span><b>$60–400 once</b></div></div>
-      <div class="pc p"><h3>Pros</h3><ul><li>Fixes the AI-reading problem with one queryable source</li><li>Delivers proposals, pricing and contract protection</li><li>Starts capturing outcome data that options 2 and 3 need</li></ul></div>
-      <div class="pc c"><h3>Cons</h3><ul><li>Pwin, leads and market analysis stay manual</li><li>Staff time to verify extracted facts</li><li>Largest single build stage</li></ul></div>
-    </div>
-    <div class="oc">
-      <div class="top"><h3>2 · Enterprise data &amp; AI</h3></div>
-      <p class="one">Adds a BigQuery warehouse and public market data: Pwin scoring, price-to-win, recompete calendar, market analysis and lead scoring.</p>
-      <div class="facts"><div><span>Build</span><b>+3–6 months</b></div><div><span>Run cost</span><b>$400–1,100/mo</b></div><div><span>Models</span><b>Gated on data</b></div></div>
-      <div class="pc p"><h3>Pros</h3><ul><li>Price-to-win from public wage, award and bid data</li><li>Market share, competitors and recompete dates</li><li>Pwin and lead scores on every opportunity</li></ul></div>
-      <div class="pc c"><h3>Cons</h3><ul><li>Statistical Pwin needs ~300 recorded outcomes</li><li>Point-in-time backups and staging add cost</li><li>Texas bid tabs often need records requests</li></ul></div>
-    </div>
-    <div class="oc">
-      <div class="top"><h3>3 · Full operating platform</h3></div>
-      <p class="one">Adds sales and marketing effectiveness, client reviews and reputation, credentials and expansion tracking, and AI agents that run scheduled work on their own.</p>
-      <div class="facts"><div><span>Build</span><b>+3–6 months</b></div><div><span>Run cost</span><b>$1,000–2,600/mo</b></div><div><span>Paid data</span><b>+ quotes</b></div></div>
-      <div class="pc p"><h3>Pros</h3><ul><li>Covers every result in the Reference sheet</li><li>Outreach and inbound tracked to real customers</li><li>Agents handle follow-ups and recurring research</li></ul></div>
-      <div class="pc c"><h3>Cons</h3><ul><li>Highest cost; Apollo API and ZoomInfo are quote-only</li><li>Autonomous agents need tight cost and safety limits</li><li>Most for one builder to run</li></ul></div>
-    </div>
+    <div class="ln use"><i></i>Interface</div>
+    <div class="blk use f">Bid, pricing and contract workspace</div>
+    <div class="blk use a"><span class="plus">+</span>Market and pipeline dashboards</div>
+    <div class="blk use a"><span class="plus">+</span>Sales, client and executive views</div>
+
+    <div class="ln use"><i></i>Access &amp; AI agents</div>
+    <div class="blk use f">Per-person permissions; ChatGPT and Claude</div>
+    <div class="blk use f">Same as option 1</div>
+    <div class="blk use a"><span class="plus">+</span>Autonomous scheduled agents</div>
+
+    <div class="ln int"><i></i>Business logic</div>
+    <div class="blk int f">Staffing and pricing engine, approvals</div>
+    <div class="blk int a"><span class="plus">+</span>Pwin scorecard, price-to-win, lead scoring</div>
+    <div class="blk int a"><span class="plus">+</span>Outreach sequences, records-request follow-up</div>
+
+    <div class="ln int"><i></i>AI services</div>
+    <div class="blk int f">Extraction, drafting, meaning-based search</div>
+    <div class="blk int a"><span class="plus">+</span>Model insights on scores</div>
+    <div class="blk int a"><span class="plus">+</span>Agent automation at volume</div>
+
+    <div class="ln int"><i></i>Analytics</div>
+    <div class="blk int p">Metrics and comparisons in the database</div>
+    <div class="blk int a"><span class="plus">+</span>BigQuery warehouse, Pwin and price models</div>
+    <div class="blk int a"><span class="plus">+</span>Marketing, client and expansion analytics</div>
+
+    <div class="ln data"><i></i>Processing</div>
+    <div class="blk data f">OCR pipeline, portal crawlers, document output</div>
+    <div class="blk data a"><span class="plus">+</span>More portals, continuous crawling</div>
+    <div class="blk data a"><span class="plus">+</span>24/7 crawling and enrichment</div>
+
+    <div class="ln data"><i></i>Integrations</div>
+    <div class="blk data f">Procurement sites, Drive, QuickBooks, Belfry</div>
+    <div class="blk data a"><span class="plus">+</span>USAspending, SAM.gov, wage data, bid tabs</div>
+    <div class="blk data a"><span class="plus">+</span>Apollo / ZoomInfo, Gmail, review tools</div>
+
+    <div class="ln data"><i></i>Operational data</div>
+    <div class="blk data f">Verified facts, history, outcome capture</div>
+    <div class="blk data a"><span class="plus">+</span>Staging environment, point-in-time recovery</div>
+    <div class="blk data f">Same as option 2</div>
+
+    <div class="ln ops"><i></i>Operations</div>
+    <div class="blk ops f">Backups, monitoring, alerts</div>
+    <div class="blk ops a"><span class="plus">+</span>Staging and production</div>
+    <div class="blk ops a"><span class="plus">+</span>Agent cost and safety limits</div>
   </div>
-  <p class="src">Run costs <span class="tag v">Verified</span> are built from official list prices (Vercel, Supabase, Google Cloud Run, BigQuery, Vertex AI, Document AI, Sentry, Resend, Apollo) with stated usage assumptions, excluding staff time. Option 3 excludes Apollo’s API plan and ZoomInfo, which are quote-only. Build times <span class="tag e">Estimate</span> assume one developer.</p>
-</section>
-
-<section aria-labelledby="ready">
-  <div class="sechead"><span class="eyebrow">5 · Pwin, price-to-win, leads and market analysis</span><h2 id="ready">What ships first, and what waits for data</h2>
-  <p class="lede">Scoring can start right away as rules; statistical models become reliable only once enough outcomes are recorded. That’s why outcome capture starts in Option 1.</p></div>
-  <div class="tscroll"><table class="t">
-    <thead><tr><th style="width:16%">Capability</th><th style="width:28%">Ships first as</th><th style="width:28%">Upgrades to</th><th>What it needs</th></tr></thead>
-    <tbody>
-      <tr><td><b>Pwin</b></td><td>Weighted scorecard (incumbency, relationship, price position, past performance, competition), the standard capture practice</td><td>Calibrated statistical model, then machine learning</td><td>~300 bids with recorded outcomes supports only ~3–9 predictors; ML needs ~150–300+ recorded wins</td></tr>
-      <tr><td><b>Price-to-win</b></td><td>Should-cost plus competitor benchmarks</td><td>Ranges tuned by recorded bid outcomes</td><td>Public data: wage determinations, GSA price lists, award values, Texas bid tabulations. Doesn’t depend on L&amp;P’s win history</td></tr>
-      <tr><td><b>Lead scoring</b></td><td>Rules: fit plus trigger signals (expiring contract, new facility, RFP issued)</td><td>Predictive scoring</td><td>Logged lead outcomes; Salesforce’s model requires ≥1,000 leads with ≥120 conversions</td></tr>
-      <tr><td><b>Market analysis</b></td><td>Market size, competitor share, recompete calendar</td><td>Trends and forecasts</td><td>USAspending, SAM.gov, BLS wage data, Texas ESBD, all free</td></tr>
-    </tbody>
-  </table></div>
-  <p class="src">Sample size: <a href="https://doi.org/10.1136/bmj.m441">Riley et al., BMJ 2020</a>; Peduzzi et al. 1996 (10 events per variable). Lead scoring: <a href="https://resources.docs.salesforce.com/242/latest/en-us/sfdc/pdf/sales_einstein_implementation_guide.pdf">Salesforce Einstein guide</a>. Pwin practice: <a href="https://www.shipleywins.com/probability-of-winning">Shipley</a>, Unanet and Loopio documentation. The predictor counts are our approximation of Riley’s criteria.</p>
-</section>
-
-<section aria-labelledby="path">
-  <div class="sechead"><span class="eyebrow">6 · Recommended path</span><h2 id="path">Build 1, then 2, then 3, each proving itself before the next</h2></div>
-  <div class="path">
-    <div class="step"><span class="k">OPTION 1 · ~3–6 MONTHS</span><b>One trusted source</b><p>Document pipeline, verified records, pricing and proposal engines, contracts, ChatGPT and Claude connected, outcome capture on every bid.</p><p class="proof"><b>Proof:</b> one real bid end to end; agents answer from the database, not the sheet.</p></div>
-    <span class="arrow" aria-hidden="true">→</span>
-    <div class="step"><span class="k">OPTION 2 · +3–6 MONTHS</span><b>Market and pricing intelligence</b><p>Warehouse, public market data, Pwin scorecard, price-to-win, lead scoring, recompete calendar.</p><p class="proof"><b>Proof:</b> every open opportunity shows a Pwin score and a price range with sources.</p></div>
-    <span class="arrow" aria-hidden="true">→</span>
-    <div class="step"><span class="k">OPTION 3 · +3–6 MONTHS</span><b>Full operating platform</b><p>Sales and marketing tracking, client reviews and reputation, expansion tracking, autonomous scheduled agents.</p><p class="proof"><b>Proof:</b> agents complete recurring work with a full audit trail.</p></div>
   </div>
+  <p class="note"><b>Why the data layer comes first:</b> AI agents can’t work accurately across a spreadsheet of 87 tabs (about 2.35 million tokens, larger than any AI’s reading window). A database lets an agent ask a precise question and get back only the matching records.</p>
 </section>
-
-<section aria-labelledby="dec">
-  <div class="sechead"><span class="eyebrow">7 · Decisions</span><h2 id="dec">What we need to decide together</h2></div>
-  <div class="tscroll"><table class="t">
-    <thead><tr><th style="width:18%">Decision</th><th style="width:36%">Options</th><th>Recommendation</th></tr></thead>
-    <tbody>
-      <tr><td><b>Target scope</b></td><td>Option 1 · 2 · 3</td><td>Option 3 as the destination, built in order 1 → 2 → 3</td></tr>
-      <tr><td><b>First priority</b></td><td>Proposals · pricing · leads · contracts</td><td>Proposals and pricing: one real bid end to end</td></tr>
-      <tr><td><b>Outcome capture</b></td><td>Start now, or when models are built</td><td>Start now, and backfill past bids. Pwin and price-to-win depend on it</td></tr>
-      <tr><td><b>Cloud scope</b></td><td>All Google Cloud, or Google Cloud + managed app services</td><td>Google Cloud for heavy work and analytics; managed app services for speed; standard PostgreSQL keeps an all-Google move open</td></tr>
-      <tr><td><b>Paid data</b></td><td>Apollo (API is quote-only) · ZoomInfo (quote-only) · public data only</td><td>Public data first; get Apollo and ZoomInfo quotes before Option 3</td></tr>
-    </tbody>
-  </table></div>
-</section>
-
-<footer>
-  <span><b>How this was checked:</b> the Data Index sheet was measured directly; market volumes come from official USAspending and SAM.gov queries; costs come from official pricing pages (us-central1 list prices, 15 Oct 2026); modeling guidance comes from published research and vendor documentation. Context-window sizes are from secondary sources and vary by plan.</span>
-  <span>Detail: DECISIONS.md, FULL-STACK.md and the architecture diagram in the claude_code_files repo.</span>
-</footer>
 </div>
-
-<script>
-// rows: [group] or ["", layer, cell1, cell2, cell3]; cell = [state, text, isAdded]; state f = included, p = partial, n = not included
-const ROWS = [
-  ["Technology layers"],
-  ["", "Interface", ["f","Bid, pricing and contract workspace"], ["f","Market and pipeline dashboards",1], ["f","Sales, client and executive views",1]],
-  ["", "Access & AI agents", ["f","Per-person permissions, ChatGPT and Claude, audit"], ["f","Same as option 1"], ["f","Autonomous scheduled agents",1]],
-  ["", "Business logic", ["f","Staffing and pricing engine, approvals"], ["f","Pwin scorecard, price-to-win, lead scoring",1], ["f","Outreach sequences, records-request follow-up",1]],
-  ["", "AI services", ["f","Extraction, drafting, meaning-based search"], ["f","Model insights on scores",1], ["f","Agent automation at volume",1]],
-  ["", "Processing", ["f","OCR pipeline, key portal crawlers, document output"], ["f","More portals, continuous crawling",1], ["f","24/7 crawling and enrichment",1]],
-  ["", "Integrations", ["f","Procurement sites, Drive, QuickBooks, Belfry files"], ["f","USAspending, SAM.gov, wage determinations, bid tabs",1], ["f","Apollo / ZoomInfo, Gmail, review and search-visibility tools",1]],
-  ["", "Operational data", ["f","Verified facts, history, outcome capture"], ["f","Staging environment, point-in-time recovery",1], ["f","Same as option 2"]],
-  ["", "Analytics", ["p","Metrics and comparisons in the database"], ["f","BigQuery warehouse, Pwin and price models",1], ["f","Marketing, client and expansion analytics",1]],
-  ["", "Operations", ["f","Backups, monitoring, alerts"], ["f","Staging + production, recovery",1], ["f","Agent cost and safety limits",1]],
-  ["End results delivered"],
-  ["", "Stronger proposals", ["f","Data-driven drafting, compliance, pricing"], ["f","Plus Pwin and price-to-win guidance",1], ["f","Same as option 2"]],
-  ["", "Find & convert business", ["p","Opportunity discovery and watchlists"], ["f","Market analysis, recompete calendar, scored leads",1], ["f","Outreach and conversion tracking",1]],
-  ["", "Protect revenue & clients", ["f","Contracts, renewals, billing reconciliation"], ["f","Plus profitability analytics",1], ["f","Client reviews and reputation",1]],
-  ["", "Strengthen capability", ["p","Past performance and credentials"], ["p","Eligibility gaps against the market",1], ["f","Partners, expansion, training academy",1]],
-  ["", "Reusable intelligence", ["f","Every bid feeds the next"], ["f","Plus forecasting from history",1], ["f","Agents do recurring work",1]]
-];
-const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
-const cls = {f:"full", p:"part", n:"none"};
-const lab = {f:"Included", p:"Partial", n:"Not included"};
-document.getElementById("mbody").innerHTML = ROWS.map(r => r.length === 1
-  ? `<tr class="grp"><td colspan="4">${esc(r[0])}</td></tr>`
-  : `<tr><td class="lay">${esc(r[1])}</td>${[r[2],r[3],r[4]].map(([s,t,a]) =>
-      `<td><div class="cell ${s === "n" ? "none" : ""}"><i class="pip ${cls[s]}" role="img" aria-label="${lab[s]}"></i><span class="${a ? "add" : ""}">${esc(t)}</span></div></td>`).join("")}</tr>`
-).join("");
-
-const matrix = document.getElementById("matrix");
-function highlight(col){
-  matrix.querySelectorAll("tr").forEach(tr => {
-    [...tr.children].forEach((c, i) => c.classList.toggle("col-on", i === col && !tr.classList.contains("grp")));
-  });
-}
-const pick = document.getElementById("pick");
-pick.addEventListener("click", e => {
-  const b = e.target.closest("button"); if (!b) return;
-  const on = b.getAttribute("aria-pressed") !== "true";
-  [...pick.children].forEach(x => x.setAttribute("aria-pressed", String(x === b && on)));
-  highlight(on ? Number(b.dataset.col) : -1);
-});
-highlight(1);
-</script>
 
 </body>
 </html>
