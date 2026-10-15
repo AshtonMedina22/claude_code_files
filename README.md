@@ -4,6 +4,6 @@ Plans, diagrams and code produced with Claude Code.
 
 ## L&P platform
 
-- [Architecture decisions](lp-platform/architecture/DECISIONS.md): design rules, layers, decisions D1–D12, build phases
-- [Architecture diagram](lp-platform/architecture/lp-platform-architecture.html): interactive layered diagram (open in a browser)
-- [Starter stack](lp-platform/architecture/STARTER-STACK.md): verified install list per layer (template vs. individual packages)
+- [Architecture decisions](lp-platform/architecture/DECISIONS.md): Google Cloud is the platform. The current application repository is not the host decision.
+- [Architecture diagram](lp-platform/architecture/lp-platform-architecture.html): owner diagram. Open it in a browser.
+- [Starter stack](lp-platform/architecture/STARTER-STACK.md): what to install on Google Cloud.
