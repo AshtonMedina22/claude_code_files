@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L&amp;P Platform Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a stacked "layer cake" blueprint (one band per technical layer, host on the left rail),
+   external systems in a side column, then a data-lifecycle strip, capability map and decisions list. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#15202e; --muted:#566476; --line:#d5dce5;
+  --accent:#1f5fae; --accent-soft:#e5eefa;
+  --built:#1e7a4f; --partial:#b26a00; --planned:#7a8696; --warn:#b3261e; --warn-soft:#fbeceb;
+  --band:#e9edf3; --hl:#fff6d6; --hl-line:#c99400;
+  --f-display:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
+  --accent:#7fb0ef; --accent-soft:#1b2a3f;
+  --built:#5cc792; --partial:#e5a54a; --planned:#8792a2; --warn:#f08a80; --warn-soft:#3a1f1d;
+  --band:#131a23; --hl:#3a3112; --hl-line:#e0b43a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
+  --accent:#7fb0ef; --accent-soft:#1b2a3f;
+  --built:#5cc792; --partial:#e5a54a; --planned:#8792a2; --warn:#f08a80; --warn-soft:#3a1f1d;
+  --band:#131a23; --hl:#3a3112; --hl-line:#e0b43a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:36px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:22px;font-weight:700;letter-spacing:-.01em}
+h3{font-size:14px;font-weight:700}
+p{margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.86em}
+.eyebrow{font:600 11px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:72ch;color:var(--muted);font-size:16px}
+section{display:grid;gap:16px;min-width:0}
+.sechead{display:grid;gap:6px}
+
+/* Identity block */
+.identity{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.idcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:10px;align-content:start;min-width:0}
+.idcard .big{font:700 19px/1.35 var(--f-display)}
+.idcard ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.namefix{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline}
+.namefix .k{font-size:12px;color:var(--muted)}
+.strike{text-decoration:line-through;color:var(--muted)}
+
+/* Legend + flow picker */
+.controls{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.s-built .dot,.dot.built{background:var(--built)}
+.s-partial .dot,.dot.partial{background:linear-gradient(90deg,var(--partial) 50%,transparent 50%);border:1.5px solid var(--partial)}
+.s-planned .dot,.dot.planned{border:1.5px dashed var(--planned);background:transparent}
+.s-built{color:var(--built)} .s-partial{color:var(--partial)} .s-planned{color:var(--planned)}
+.flows{display:flex;flex-wrap:wrap;gap:6px}
+.flows button{font:600 13px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.flows button:hover{border-color:var(--accent)}
+.flows button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.flows button:focus-visible,.cap:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--hl-line);border-radius:8px;padding:14px 16px;display:grid;gap:8px}
+.steps ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.steps .why{color:var(--muted);font-size:13px}
+
+/* Diagram */
+.diagram-scroll{overflow-x:auto;padding-bottom:4px}
+.diagram{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:14px;min-width:980px}
+.stack{display:grid;gap:0;min-width:0}
+.band{display:grid;grid-template-columns:168px minmax(0,1fr);background:var(--band);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.band.proposed{border-style:dashed}
+.rail{padding:12px;border-right:1px solid var(--line);display:grid;gap:6px;align-content:start;background:var(--surface)}
+.rail .lname{font:700 14px/1.25 var(--f-display)}
+.rail .host{font:500 11px/1.35 var(--f-mono);color:var(--accent)}
+.rail .was{font-size:11px;color:var(--muted)}
+.cells{display:grid;gap:10px;padding:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));align-content:start}
+.node{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:5px;align-content:start;transition:opacity .15s,background .15s,border-color .15s}
+.node.planned{border-style:dashed;background:transparent}
+.node .t{font-weight:700;font-size:13.5px;line-height:1.25;padding-right:22px}
+.node .d{font-size:12.5px;color:var(--muted);line-height:1.4}
+.node .tech{font:400 11px/1.4 var(--f-mono);color:var(--ink);opacity:.85}
+.node .flag{font-size:11.5px;color:var(--warn);line-height:1.35}
+.node .st{position:absolute;top:11px;right:10px}
+.node .n{display:none;position:absolute;top:-9px;left:-9px;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:var(--hl-line);color:var(--surface);font:700 12px/22px var(--f-body);text-align:center}
+.diagram.focus .node{opacity:.32}
+.diagram.focus .node.on{opacity:1;background:var(--hl);border-color:var(--hl-line)}
+.diagram.focus .node.on .n{display:block}
+.conn{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;padding:7px 8px;font-size:12px;color:var(--muted)}
+.conn span{display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.conn b{color:var(--accent);font-weight:700}
+.side{display:grid;gap:10px;align-content:start;min-width:0}
+.side .sidehead{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px}
+.actors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:0}
+.actors .node{background:var(--accent-soft);border-color:transparent}
+
+/* Lifecycle strip */
+.life{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stage{padding:14px;display:grid;gap:6px;align-content:start;border-right:1px solid var(--line);position:relative;min-width:0}
+.stage:last-child{border-right:0}
+.stage .k{font:700 11px/1 var(--f-mono);color:var(--accent);letter-spacing:.04em}
+.stage .t{font:700 15px/1.25 var(--f-display)}
+.stage .d{font-size:13px;color:var(--muted)}
+.stage.gate{background:var(--hl)}
+.gates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gatecard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px;align-content:start;min-width:0}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font:500 11px/1 var(--f-mono);padding:5px 7px;border-radius:5px;background:var(--band);border:1px solid var(--line)}
+
+/* Capability map */
+.caps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.cap{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px;align-content:start;min-width:0}
+.cap .t{font:700 15px/1.25 var(--f-display)}
+.cap ul{margin:0;padding-left:16px;font-size:13px;display:grid;gap:3px}
+.cap .map{font:400 11px/1.45 var(--f-mono);color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.cap.conflict{border-color:var(--warn)}
+.crosscut{background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:13.5px}
+
+/* Findings */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font:600 11px/1.2 var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--band)}
+tr:last-child td{border-bottom:0}
+td.sev{white-space:nowrap;font-weight:700;font-size:12px}
+.sev.hi{color:var(--warn)} .sev.md{color:var(--partial)}
+footer{font-size:12.5px;color:var(--muted);display:grid;gap:6px;border-top:1px solid var(--line);padding-top:16px}
+footer a{color:var(--accent)}
+
+@media (max-width:1000px){
+  .identity,.gates{grid-template-columns:1fr}
+  .caps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .life{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stage:nth-child(3){border-right:0}
+  .stage:nth-child(-n+3){border-bottom:1px solid var(--line)}
+}
+@media (max-width:620px){
+  .wrap{padding-inline:16px}
+  .caps,.life{grid-template-columns:1fr}
+  .stage{border-right:0;border-bottom:1px solid var(--line)}
+}
+@media (prefers-reduced-motion:reduce){.node{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="sechead">
+  <span class="eyebrow">L&amp;P Global Security · system architecture · verified against repo commit aa4512f and the Reference sheet, 14 Oct 2026</span>
+  <h1>L&amp;P Platform Architecture</h1>
+  <p class="lede">What the platform is, the technical layers it actually has, what runs where, and how a request or a document moves through it. Every box is marked with what the repository shows today: built, partial, or planned.</p>
+</header>
+
+<section aria-labelledby="what">
+  <div class="sechead"><span class="eyebrow">What you are building</span><h2 id="what">The correct category and name</h2></div>
+  <div class="identity">
+    <div class="idcard">
+      <span class="eyebrow">Standard description</span>
+      <p class="big">An internal <b>business development (BD) lifecycle platform</b> for a security services contractor: capture management, proposal management and bid pricing, with win/loss and competitive intelligence, plus post-award contract administration.</p>
+      <p>Technically it is a <b>modular monolith</b> web app (Next.js on Vercel) on a <b>single system of record</b> (Supabase Postgres + Storage). A <b>Python worker service</b> handles documents and web acquisition. A <b>human-in-the-loop document pipeline</b> turns files into verified records. A <b>remote MCP server</b> gives AI agents the same tools the UI uses.</p>
+    </div>
+    <div class="idcard">
+      <span class="eyebrow">Naming corrections</span>
+      <div class="namefix">
+        <span class="k">Product</span><span><span class="strike">Contract Intelligence Platform</span>. "Contract intelligence" is an industry term for AI analysis of signed contracts (a CLM add-on). That's only your post-award module.</span>
+        <span class="k">Use</span><span><b>Capture &amp; proposal platform</b> or <b>BD platform</b>; keep "contract administration" for the post-award module.</span>
+        <span class="k">Layers</span><span><span class="strike">Interfaces / logic / compute / data / controls</span> (colour groups, not layers) → the 8 standard layers below.</span>
+        <span class="k">A–F umbrellas</span><span>A functional lens (verbs). Code and modules should follow <b>business domains</b> (nouns); see the capability map.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="layers">
+  <div class="sechead">
+    <span class="eyebrow">Layered architecture</span>
+    <h2 id="layers">Technical layers and how they connect</h2>
+    <p class="lede">Read top to bottom: who calls in, the surfaces they hit, the domain logic, then the services, workers and data underneath. Pick a workflow to light up the path it takes.</p>
+  </div>
+
+  <div class="controls">
+    <div class="legend" aria-label="Status legend">
+      <span class="chip s-built"><span class="dot"></span>Built in repo</span>
+      <span class="chip s-partial"><span class="dot"></span>Partial / gated</span>
+      <span class="chip s-planned"><span class="dot"></span>Planned, no code</span>
+    </div>
+    <div class="flows" role="group" aria-label="Highlight a workflow" id="flowbtns"></div>
+  </div>
+  <div class="steps" id="steps" hidden></div>
+
+  <div class="diagram-scroll">
+  <div class="diagram" id="diagram">
+    <div class="stack">
+
+      <div class="actors">
+        <div class="node built" data-id="staff"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">L&amp;P staff</span><span class="d">Bid desk, sales, operations, leadership in a browser.</span></div>
+        <div class="node partial" data-id="agents"><span class="n"></span><span class="st chip s-partial"><span class="dot"></span></span><span class="t">External AI agents</span><span class="d">ChatGPT and Claude as MCP clients. ChatGPT read verified; writes and Claude untested.</span></div>
+        <div class="node built" data-id="sched"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Schedulers</span><span class="d">pg_cron: contract, obligation and automation checks. Vercel Cron: digest 13:00 UTC, opportunity sync 14:00 UTC.</span></div>
+      </div>
+      <div class="conn"><span>HTTPS · <b>session cookie</b></span><span>JSON-RPC · <b>bearer token</b></span><span>cron → <b>HTTP route / SQL function</b></span></div>
+
+      <div class="band">
+        <div class="rail"><span class="eyebrow">Layer 1</span><span class="lname">Presentation</span><span class="host">Vercel</span></div>
+        <div class="cells">
+          <div class="node built" data-id="ui" style="grid-column:1/-1"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Web application UI</span><span class="d">Server-rendered pages + client components. Navigation: Home · Pursuits · Intelligence · Contracts · Data Ops.</span><span class="tech">Next.js App Router · React 19 · Tailwind/shadcn · TanStack Table/Query · Tiptap · Glide Data Grid · react-pdf · Recharts</span></div>
+        </div>
+      </div>
+      <div class="conn"><span>Server Actions / fetch</span></div>
+
+      <div class="band">
+        <div class="rail"><span class="eyebrow">Layer 2</span><span class="lname">API &amp; agent gateway</span><span class="host">Vercel Functions</span><span class="was">Backend-for-frontend + tool server</span></div>
+        <div class="cells">
+          <div class="node built" data-id="api"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Server Actions &amp; Route Handlers</span><span class="d">The app's own API. Input validated with Zod.</span><span class="tech">app/**/actions.ts · app/api/*</span></div>
+          <div class="node partial" data-id="mcp"><span class="n"></span><span class="st chip s-partial"><span class="dot"></span></span><span class="t">Remote MCP server</span><span class="d">34 tools: 31 read, 3 write (research note, pursuit fields, loss lesson).</span><span class="tech">/api/ask/mcp · JSON-RPC · spec 2025-03-26</span><span class="flag">Shared bearer secret grants full operator access; no OAuth. Deployed plugin shows 12 tools.</span></div>
+          <div class="node built" data-id="actions"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">GPT Actions REST API</span><span class="d">Same tool set as REST endpoints with an OpenAPI spec. A second agent surface.</span><span class="tech">/api/ask/actions/* · /openapi</span></div>
+          <div class="node built" data-id="authz"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Identity &amp; access control</span><span class="d">Login, org membership, role permissions, row-level security, audit log, rate limits.</span><span class="tech">Supabase Auth · requirePermission · Postgres RLS</span></div>
+        </div>
+      </div>
+      <div class="conn"><span>function calls · <b>same services for UI and agents</b></span></div>
+
+      <div class="band">
+        <div class="rail"><span class="eyebrow">Layer 3</span><span class="lname">Application / domain services</span><span class="host">Vercel · TypeScript</span><span class="was">apps/web/lib/* modules</span></div>
+        <div class="cells">
+          <div class="node built" data-id="capture"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Opportunity &amp; capture</span><span class="d">Discovery and watchlists, pursuit register and dossier, bid/no-bid, Pwin.</span><span class="tech">procurement · opportunity · wave-g · discover</span></div>
+          <div class="node built" data-id="proposal"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Proposal management</span><span class="d">Compliance matrix, addenda change impact, content library, response authoring, assembly, DOCX/Docs export, submission artifacts.</span><span class="tech">solicitation · content · export · experience</span></div>
+          <div class="node built" data-id="pricing"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Staffing &amp; pricing</span><span class="d">Post coverage and shifts, cost buildup (pay → burdened → bill rate), pricing workbench, price analysis.</span><span class="tech">pricing · opportunity/r8-cost-engine</span><span class="flag">Known bug: "unarmed" can match "armed".</span></div>
+          <div class="node partial" data-id="intel"><span class="n"></span><span class="st chip s-partial"><span class="dot"></span></span><span class="t">Market &amp; competitive intelligence</span><span class="d">Buyers, competitors, historical pricing, comparables, win/loss, public research runs.</span><span class="tech">intelligence · comparables · research</span></div>
+          <div class="node built" data-id="contracts"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Contract administration</span><span class="d">Service plans, obligations, amendments and options, renewals/recompetes, credentials.</span><span class="tech">contracts · obligations · compliance</span><span class="flag">Only 12 contracts loaded; 3 with verified end dates.</span></div>
+          <div class="node partial" data-id="ask"><span class="n"></span><span class="st chip s-partial"><span class="dot"></span></span><span class="t">Search, Q&amp;A &amp; reports</span><span class="d">Hybrid retrieval, governed metrics (analytical runs), 8 report types, notifications and action center.</span><span class="tech">retrieval · analytics · reports · automation</span></div>
+          <div class="node built" data-id="dataops"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Data operations</span><span class="d">Intake, verification workbench, exceptions, data quality, entity resolution, classification.</span><span class="tech">intake · verification · trust · entity-resolution</span></div>
+        </div>
+      </div>
+      <div class="conn"><span>model calls <b>(optional)</b></span><span>start / resume <b>workflows</b></span><span>SQL + Storage via <b>supabase-js</b></span></div>
+
+      <div class="band">
+        <div class="rail"><span class="eyebrow">Layer 4</span><span class="lname">AI model services</span><span class="host">External APIs</span><span class="was">Provider-abstracted</span></div>
+        <div class="cells">
+          <div class="node built" data-id="llm"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">LLM gateway</span><span class="d">Writes in-app Ask answers from retrieved evidence. Not needed when an outside agent does the reasoning.</span><span class="tech">Vercel AI SDK · Groq / OpenAI / Google / Ollama</span></div>
+          <div class="node built" data-id="embed"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Embedding model</span><span class="d">Turns text chunks into 1536-d vectors for semantic search.</span><span class="tech">text-embedding-3-small via AI Gateway/OpenAI</span><span class="flag">Requires a provider key; full-text search is the fallback.</span></div>
+          <div class="node partial" data-id="ocrapi"><span class="n"></span><span class="st chip s-partial"><span class="dot"></span></span><span class="t">OCR API</span><span class="d">Cloud OCR for scans when its key is set. LLM-based extraction exists but is disabled.</span><span class="tech">Mistral OCR (MISTRAL_API_KEY)</span></div>
+        </div>
+      </div>
+      <div class="conn"><span>durable steps · <b>human-verification hook</b></span></div>
+
+      <div class="band">
+        <div class="rail"><span class="eyebrow">Layer 5</span><span class="lname">Orchestration</span><span class="host">Vercel + Supabase</span></div>
+        <div class="cells">
+          <div class="node built" data-id="wf"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Durable workflow engine</span><span class="d">Document lifecycle: queue → parse/extract → <i>pause for human verification</i> → resume → mark verified. Survives restarts.</span><span class="tech">Vercel Workflow ("use workflow" / "use step")</span></div>
+          <div class="node built" data-id="jobport"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Job dispatch</span><span class="d">One interface that runs a job inline or via a workflow, so domain code doesn't care where work runs.</span><span class="tech">JobPort · Vercel Queues optional</span></div>
+        </div>
+      </div>
+      <div class="conn"><span>HTTPS · <b>x-processor-secret</b> · /jobs/*</span></div>
+
+      <div class="band">
+        <div class="rail"><span class="eyebrow">Layer 6</span><span class="lname">Processing workers</span><span class="host">Fly.io (dfw) today</span><span class="was">Cloud Run manifests also in repo; pick one</span></div>
+        <div class="cells">
+          <div class="node built" data-id="parse"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Parsing &amp; OCR</span><span class="d">Routes each file to the right parser; never OCRs a clean PDF or workbook.</span><span class="tech">FastAPI · pypdf · python-docx · openpyxl · Docling · OCRmyPDF/Tesseract</span></div>
+          <div class="node built" data-id="extract"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Extraction &amp; validation</span><span class="d">Rule-based extractors write fact candidates with page/cell locators to staging. The validation engine applies source-precedence rules.</span><span class="tech">extractors/heuristic · trust/engine</span></div>
+          <div class="node built" data-id="acquire"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Web acquisition</span><span class="d">Crawls permitted public pages and documents into the vault.</span><span class="tech">Crawlee/Playwright · Crawl4AI · SearXNG · Firecrawl optional</span></div>
+          <div class="node partial" data-id="solver"><span class="n"></span><span class="st chip s-partial"><span class="dot"></span></span><span class="t">Optimization &amp; ML</span><span class="d">Shift-schedule solver, Pwin model training, entity matching.</span><span class="tech">OR-Tools · pyworkforce · scikit-learn/SHAP</span></div>
+        </div>
+      </div>
+      <div class="conn"><span>service-role reads/writes · <b>staging only</b>, never canonical</span></div>
+
+      <div class="band">
+        <div class="rail"><span class="eyebrow">Layer 7</span><span class="lname">Data / system of record</span><span class="host">Supabase</span><span class="was">OLTP · one canonical database</span></div>
+        <div class="cells">
+          <div class="node built" data-id="vault"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Object storage (evidence vault)</span><span class="d">Original files, append-only, path = org / document / version / SHA-256.</span><span class="tech">Supabase Storage</span></div>
+          <div class="node built" data-id="staging"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Staging zone</span><span class="d">Fact candidates with confidence, locator and verification state. Exceptions queue.</span><span class="tech">extraction_runs · extracted_facts · validation_exceptions</span></div>
+          <div class="node built" data-id="canonical"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Canonical records</span><span class="d">Verified business data: pursuits, requirements, pricing, proposals, awards, contracts. Written only by audited promote functions.</span><span class="tech">Postgres · RLS · promote RPCs</span></div>
+          <div class="node built" data-id="index"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Retrieval index</span><span class="d">Chunked text with full-text and vector search, filtered by trust and purpose.</span><span class="tech">document_chunks · tsvector · pgvector</span></div>
+          <div class="node built" data-id="audit"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Audit &amp; lineage</span><span class="d">Who verified what, every AI run, tool trace, citation and report version.</span><span class="tech">verification_events · audit_log · ai_runs · report_runs</span></div>
+        </div>
+      </div>
+      <div class="conn"><span>change data capture <b>(proposed)</b></span></div>
+
+      <div class="band proposed">
+        <div class="rail"><span class="eyebrow">Layer 8</span><span class="lname">Analytics (OLAP)</span><span class="host">Google Cloud · proposed</span><span class="was">Not referenced anywhere in the repo</span></div>
+        <div class="cells">
+          <div class="node planned" data-id="cdc"><span class="n"></span><span class="st chip s-planned"><span class="dot"></span></span><span class="t">Replication (CDC / ELT)</span><span class="d">Copies changes out of Postgres. Keep history with snapshots or SCD Type 2.</span><span class="tech">Supabase Pipelines (public alpha) or a custom loader</span></div>
+          <div class="node planned" data-id="dwh"><span class="n"></span><span class="st chip s-planned"><span class="dot"></span></span><span class="t">Data warehouse</span><span class="d">Historical, cross-system analysis (bids + QuickBooks + Belfry actuals).</span><span class="tech">BigQuery</span></div>
+          <div class="node planned" data-id="semantic"><span class="n"></span><span class="st chip s-planned"><span class="dot"></span></span><span class="t">Transformations &amp; semantic layer</span><span class="d">Tested SQL models and one shared definition per metric.</span><span class="tech">Dataform or dbt</span></div>
+          <div class="node planned" data-id="bi"><span class="n"></span><span class="st chip s-planned"><span class="dot"></span></span><span class="t">BI / reporting</span><span class="d">Charts in-app today; a standalone BI tool is optional.</span><span class="tech">Recharts · Data Studio / Metabase</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side" aria-label="External systems">
+      <div class="sidehead"><span class="eyebrow">Outside the platform</span><span class="lname" style="font:700 14px var(--f-display)">External systems</span></div>
+      <div class="node built" data-id="pubsrc"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Public procurement sources</span><span class="d">Solicitations, awards, bid tabs.</span><span class="tech">SAM.gov · USAspending · Texas ESBD · Bonfire · BuyBoard · IonWave · BidNet · Socrata/CKAN/OCDS · Legistar</span></div>
+      <div class="node partial" data-id="gws"><span class="n"></span><span class="st chip s-partial"><span class="dot"></span></span><span class="t">Google Workspace</span><span class="d">Drive import (live sync blocked on token), Docs as proposal working copy, Sheets export only.</span></div>
+      <div class="node planned" data-id="biz"><span class="n"></span><span class="st chip s-planned"><span class="dot"></span></span><span class="t">Business systems</span><span class="d">Accounting, workforce/scheduling, sales intelligence, CRM, email.</span><span class="tech">QuickBooks · Belfry · Apollo/ZoomInfo</span><span class="flag">No connector code exists yet.</span></div>
+      <div class="node built" data-id="buyer"><span class="n"></span><span class="st chip s-built"><span class="dot"></span></span><span class="t">Buyer submission channel</span><span class="d">Portal, email or paper. Bids leave the platform as files; buyers never log in.</span></div>
+    </aside>
+  </div>
+  </div>
+</section>
+
+<section aria-labelledby="life">
+  <div class="sechead">
+    <span class="eyebrow">Data lifecycle</span>
+    <h2 id="life">How a file becomes trusted data</h2>
+    <p class="lede">This is a staged (medallion-style) pipeline with a human-in-the-loop gate. AI and parsers only ever write to staging; a person promotes facts into the canonical records.</p>
+  </div>
+  <div class="life">
+    <div class="stage"><span class="k">SOURCE</span><span class="t">Acquire</span><span class="d">Upload, Drive import, public portal crawl or records request.</span></div>
+    <div class="stage"><span class="k">RAW · BRONZE</span><span class="t">Preserve original</span><span class="d">Exact copy in the vault with checksum and version. Never overwritten.</span></div>
+    <div class="stage"><span class="k">STAGING · SILVER</span><span class="t">Parse &amp; extract</span><span class="d">Text, tables and fact candidates with confidence and page/cell locators.</span></div>
+    <div class="stage gate"><span class="k">HUMAN GATE</span><span class="t">Verify &amp; reconcile</span><span class="d">Reviewer accepts, corrects, rejects or flags conflicts. The workflow waits here.</span></div>
+    <div class="stage"><span class="k">CANONICAL · GOLD</span><span class="t">Promote</span><span class="d">Audited function writes the verified value into business tables.</span></div>
+    <div class="stage"><span class="k">SERVING</span><span class="t">Use</span><span class="d">Retrieval index, metrics, reports, proposal drafting, MCP tools.</span></div>
+  </div>
+  <div class="gates">
+    <div class="gatecard"><h3>Verification state (per fact)</h3><div class="tags"><span class="tag">AI_EXTRACTED</span><span class="tag">NEEDS_REVIEW</span><span class="tag">HUMAN_VERIFIED</span><span class="tag">REJECTED</span><span class="tag">CONFLICT</span></div><p class="d" style="font-size:13px;color:var(--muted)">AI output can never be marked verified.</p></div>
+    <div class="gatecard"><h3>Data classification (per document)</h3><div class="tags"><span class="tag">verified_public</span><span class="tag">verified_internal</span><span class="tag">internal_unverified</span><span class="tag">illustrative_demo</span></div><p style="font-size:13px;color:var(--muted)">A separate check. Each use (drafting, loss analysis, pricing…) only sees the classes it is allowed.</p></div>
+    <div class="gatecard"><h3>Four commercial truths (never merged)</h3><div class="tags"><span class="tag">BUYER REQUESTED</span><span class="tag">L&amp;P PROPOSED</span><span class="tag">BUYER AWARDED</span><span class="tag">CURRENT / AMENDED</span></div><p style="font-size:13px;color:var(--muted)">Prices and terms keep their stage; newer executed documents take precedence.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="caps">
+  <div class="sechead">
+    <span class="eyebrow">Business capability map</span>
+    <h2 id="caps">What the platform does, in standard terms</h2>
+    <p class="lede">These are business domains, each mapped to its sections on your Features tab and its module in the code. Domains are how the software should be split into modules. The A–F umbrellas cut across them.</p>
+  </div>
+  <div class="caps">
+    <div class="cap"><span class="t">Opportunity &amp; capture</span><ul><li>Opportunity discovery &amp; watchlists</li><li>Recompete tracking</li><li>Bid/no-bid gate</li><li>Pwin (probability of win)</li><li>Capture plan / pursuit record</li></ul><span class="map">Features 01 · 15 · 16 · 19 · 31 → capture</span></div>
+    <div class="cap"><span class="t">Proposal management</span><ul><li>Compliance matrix (RFP shred)</li><li>Addenda / Q&amp;A change control</li><li>Content library</li><li>Response authoring &amp; color reviews</li><li>Production, export, submission record</li></ul><span class="map">Features 03 · 17 · 18 · 25–28 → proposal</span></div>
+    <div class="cap"><span class="t">Staffing &amp; pricing</span><ul><li>Post coverage &amp; relief factor</li><li>Shift schedule validation</li><li>Cost buildup &amp; margin</li><li>Price-to-win (PTW)</li><li>Price schedule / pricing volume</li></ul><span class="map">Features 03 · 20–24 → pricing</span></div>
+    <div class="cap"><span class="t">Win/loss &amp; competitive intelligence</span><ul><li>Competitor profiles</li><li>Win/loss analysis &amp; debriefs</li><li>Public information requests</li><li>Buyer history &amp; entity resolution</li><li>Lessons learned loop</li></ul><span class="map">Features 01 · 02 · 29 · 30 · 32 · 33 → intel</span></div>
+    <div class="cap"><span class="t">Contract administration</span><ul><li>Obligation management</li><li>PO / funding authorization</li><li>Modifications &amp; option periods</li><li>Renewals &amp; recompetes</li><li>Job costing (needs QuickBooks/Belfry)</li></ul><span class="map">Features 07 · 34 · 35 → contracts</span></div>
+    <div class="cap"><span class="t">Company readiness</span><ul><li>Past performance records</li><li>Licenses &amp; certifications (DPS, HUB…)</li><li>Teaming / mentor-protégé</li><li>Training academy planning</li></ul><span class="map">Features 08 · 26 → contracts/compliance · experience</span></div>
+    <div class="cap conflict"><span class="t">Sales &amp; marketing</span><ul><li>Signal-based prospecting</li><li>Lead scoring &amp; qualification</li><li>Outreach &amp; funnel attribution</li><li>SEO / GEO visibility</li></ul><span class="map">Features 04 · 05 → no module yet</span><span class="flag" style="font-size:12px;color:var(--warn)">Conflicts with the repo's scope guardrail (buyers are not CRM records).</span></div>
+    <div class="cap conflict"><span class="t">Client success &amp; reputation</span><ul><li>Client service reviews</li><li>Corrective action plans (CAP)</li><li>Public review response</li><li>Feedback routing</li></ul><span class="map">Features 06 → no module yet</span><span class="flag" style="font-size:12px;color:var(--warn)">Same guardrail conflict.</span></div>
+  </div>
+  <p class="crosscut"><b>Cross-cutting platform capabilities</b> (Features 09–14, 36–38; your umbrellas A and F): document ingestion &amp; data quality · search &amp; Q&amp;A · reports &amp; notifications · agent access (MCP) · automation · identity, permissions &amp; audit.</p>
+</section>
+
+<section aria-labelledby="find">
+  <div class="sechead">
+    <span class="eyebrow">Verification findings</span>
+    <h2 id="find">Where the sheet, the old diagram and the code disagree</h2>
+    <p class="lede">Each of these changes how the architecture gets built. Most need a decision from you, not more research.</p>
+  </div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Impact</th><th>Finding</th><th>Evidence</th><th>Decision needed</th></tr></thead>
+    <tbody>
+      <tr><td class="sev hi">High</td><td>Scope conflict. The sheet asks for lead discovery, outreach, marketing attribution and client reviews. The repo's permanent guardrail says buyers are data entities only, with no CRM, lead nurture or contact cadence.</td><td><code>docs/PRODUCT_SCOPE_GUARDRAIL.md</code>, <code>DATA_ARCHITECTURE.md</code> vs Features 04–06</td><td>Add sales &amp; client domains (and update the guardrail), or connect an external CRM and keep them out.</td></tr>
+      <tr><td class="sev hi">High</td><td>"Works without provider model APIs" holds only for MCP tool calls and full-text search. Semantic search needs an embedding API, scanned-PDF OCR needs Mistral, and in-app Ask needs an LLM.</td><td><code>lib/retrieval/embed.ts</code>, <code>parsers/ocr_mistral.py</code>, <code>lib/ask/model.ts</code></td><td>Accept these as optional, or switch to local models (local embeddings, Tesseract-only OCR).</td></tr>
+      <tr><td class="sev hi">High</td><td>Agent security. MCP and GPT Actions use one shared bearer secret that opens a full operator context. The old diagram claimed scoped OAuth.</td><td><code>lib/ask/connector-session.ts</code></td><td>Move to OAuth per user before agents get broader write access (FIX-001).</td></tr>
+      <tr><td class="sev md">Medium</td><td>Two agent surfaces (MCP + OpenAPI Actions) with the same tools. The deployed ChatGPT plugin shows 12 tools; the repo defines 34. MCP still uses the older spec handshake (2025-03-26); the current spec is 2026-07-28.</td><td><code>app/api/ask/mcp/route.ts</code>, Fixes tab</td><td>Keep MCP as the one agent interface; retire Actions once ChatGPT uses MCP.</td></tr>
+      <tr><td class="sev md">Medium</td><td>Processor host is contradictory: README says Fly.io is primary, <code>railway.toml</code> says Cloud Run, and Cloud Run YAML exists.</td><td><code>services/processor/README.md</code>, <code>fly.toml</code>, <code>cloudrun/*.yaml</code></td><td>Pick one host and delete the others' configs.</td></tr>
+      <tr><td class="sev md">Medium</td><td>Tenancy: the schema is multi-tenant (organizations + RLS, "future tenants are contracting companies"), but the guardrail says internal-only.</td><td><code>DATA_ARCHITECTURE.md</code> vs guardrail</td><td>Keep the multi-tenant schema (it's cheap insurance), but state that it's internal-only for now.</td></tr>
+      <tr><td class="sev md">Medium</td><td>Analytics layer is entirely proposed. There's no BigQuery, Dataform or QuickBooks/Belfry code. Metrics today run in Postgres as governed "analytical runs".</td><td>repo-wide search: 0 hits</td><td>Defer the warehouse until you have actuals data to join (QuickBooks + Belfry).</td></tr>
+      <tr><td class="sev md">Medium</td><td>Only one durable workflow exists (document lifecycle). Proposal, pricing approval and renewal flows are page-driven, not orchestrated.</td><td><code>apps/web/workflows/</code></td><td>Add workflows only where a process waits on people or outside systems.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<footer>
+  <span><b>Basis.</b> Repository <code>AshtonMedina22/Contract-Intelligence-Platform</code> at <code>aa4512f</code> (code, 70 migrations, docs, deploy configs). Reference sheet tabs Overview, Overview Map, Features, Fixes and Sources, read 14 Oct 2026. Live deployments were not inspected; "built" means the code exists, not that it's proven in production.</span>
+  <span><b>Terms.</b> <a href="https://govdash.com/blog/best-ai-capture-management-platforms-federal-contractors">Capture vs proposal management</a> · <a href="https://www.govdash.com/glossary/price-to-win-ptw-analysis">Price-to-win</a> · <a href="https://www.icertis.com/learn/what-is-contract-intelligence/">Contract intelligence</a> · <a href="https://towardsdatascience.com/the-medallion-data-architecture">Medallion architecture</a> · <a href="https://modelcontextprotocol.io/specification/2026-07-28/changelog">MCP 2026-07-28</a> · <a href="https://supabase.com/changelog/pipelines">Supabase Pipelines alpha</a></span>
+</footer>
+</div>
+
+<script>
+const FLOWS = {
+  agent: {
+    label: "AI agent request",
+    why: "How ChatGPT or Claude reads or updates platform data through MCP.",
+    path: ["agents","mcp","authz","capture","pricing","canonical","index","audit"],
+    steps: [
+      "The agent sends a JSON-RPC <code>tools/call</code> to <code>/api/ask/mcp</code> with the shared bearer token.",
+      "The gateway opens an operator context for the L&amp;P organization.",
+      "The tool handler calls the same domain service the UI uses (e.g. getBidEconomics → capture + pricing).",
+      "Services read canonical tables and the retrieval index under the org's row-level security.",
+      "Results return as JSON; the 3 write tools save to canonical tables, and the call is logged."
+    ]
+  },
+  ingest: {
+    label: "Document ingestion",
+    why: "How a file becomes verified, searchable data.",
+    path: ["staff","ui","api","vault","wf","jobport","parse","extract","staging","dataops","canonical","index","embed"],
+    steps: [
+      "Staff upload a file (or import from Drive); the API stores the exact original in the vault with a SHA-256 checksum.",
+      "A durable workflow starts and dispatches a parse/extract job to the processor.",
+      "The processor parses (OCR only for scans) and writes fact candidates with locators to staging.",
+      "The workflow pauses. A reviewer verifies or corrects facts in the Data Ops workbench.",
+      "The workflow resumes; promote functions write verified values to canonical tables.",
+      "Eligible text is chunked and embedded into the retrieval index."
+    ]
+  },
+  rfp: {
+    label: "New RFP pursuit",
+    why: "The core business path, from posted solicitation to recorded result.",
+    path: ["sched","pubsrc","capture","proposal","pricing","solver","index","gws","vault","buyer","intel","canonical"],
+    steps: [
+      "The daily sync pulls new solicitations from public procurement sources into the opportunity register.",
+      "Capture qualifies it; the compliance matrix is built from the RFP and addenda.",
+      "Bid/no-bid uses eligibility, delivery risk, economics and Pwin.",
+      "Staffing &amp; pricing builds post coverage (schedule solver) and the cost-to-price model.",
+      "Proposal authoring pulls approved content and evidence from the retrieval index.",
+      "Assembly exports DOCX or a Google Docs working copy; the submitted package is saved in the vault.",
+      "L&amp;P submits through the buyer's channel; the outcome feeds win/loss intelligence."
+    ]
+  },
+  ask: {
+    label: "Ask a question in the app",
+    why: "In-app Q&A with sources. This is the one path that needs an LLM key.",
+    path: ["staff","ui","ask","index","canonical","llm","audit"],
+    steps: [
+      "Staff type a question in the header search (Locate, Ask/Analyze or Report).",
+      "Hybrid retrieval searches the index; governed metrics query canonical tables. Both are filtered by trust and purpose.",
+      "The LLM gateway writes the answer from the retrieved evidence only.",
+      "The answer, sources and tool traces are stored as an immutable AI run."
+    ]
+  },
+  auto: {
+    label: "Daily automation",
+    why: "Scheduled checks that create alerts. They never approve, price or submit anything.",
+    path: ["sched","canonical","contracts","ask","ui","pubsrc"],
+    steps: [
+      "pg_cron runs SQL over verified dates: contract expiry buckets (180/120/90/60/30), obligations due.",
+      "Results become notifications on contracts and pursuits.",
+      "Vercel Cron builds the daily digest shown in the Home action center.",
+      "A second Vercel Cron job syncs public opportunities."
+    ]
+  },
+  analytics: {
+    label: "Historical analytics (proposed)",
+    why: "The optional warehouse path. None of it exists yet.",
+    path: ["canonical","cdc","biz","dwh","semantic","bi","ask"],
+    steps: [
+      "Change data capture copies canonical tables out of Postgres, keeping history as snapshots.",
+      "QuickBooks and Belfry actuals land alongside it.",
+      "SQL models build tested, shared metric definitions.",
+      "Results return to in-app charts, or to a BI tool."
+    ]
+  }
+};
+
+const diagram = document.getElementById("diagram");
+const stepsEl = document.getElementById("steps");
+const btnWrap = document.getElementById("flowbtns");
+const nodes = [...diagram.querySelectorAll(".node[data-id]")];
+
+function clear(){
+  diagram.classList.remove("focus");
+  nodes.forEach(n => { n.classList.remove("on"); n.querySelector(".n").textContent = ""; });
+  stepsEl.hidden = true;
+}
+function show(key){
+  clear();
+  const f = FLOWS[key];
+  diagram.classList.add("focus");
+  f.path.forEach((id, i) => {
+    const el = diagram.querySelector(`.node[data-id="${id}"]`);
+    if (!el) return;
+    el.classList.add("on");
+    el.querySelector(".n").textContent = i + 1;
+  });
+  stepsEl.innerHTML = `<h3>${f.label}</h3><p class="why">${f.why} Numbers on the boxes show the order components are touched.</p><ol>${f.steps.map(s => `<li>${s}</li>`).join("")}</ol>`;
+  stepsEl.hidden = false;
+}
+
+const allBtn = document.createElement("button");
+allBtn.type = "button"; allBtn.textContent = "All layers"; allBtn.setAttribute("aria-pressed","true");
+btnWrap.appendChild(allBtn);
+const buttons = [allBtn];
+Object.entries(FLOWS).forEach(([key, f]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = f.label; b.dataset.flow = key; b.setAttribute("aria-pressed","false");
+  btnWrap.appendChild(b); buttons.push(b);
+});
+btnWrap.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  buttons.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  if (b.dataset.flow) show(b.dataset.flow); else clear();
+});
+</script>
+
+</body>
+</html>
