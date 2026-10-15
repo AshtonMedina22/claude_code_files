@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L&amp;P Platform — target architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f8; --surface:#fff; --ink:#15202e; --muted:#566476; --line:#d5dce5;
+  --accent:#1f5fae; --accent-soft:#e5eefa;
+  --ok:#1e7a4f; --gold:#8a5a00; --band:#e9edf3;
+  --f:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --m:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa7b8; --line:#2a3443;
+  --accent:#7fb0ef; --accent-soft:#1b2a3f; --ok:#5cc792; --gold:#e0b43a; --band:#131a23; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f)}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 64px;display:grid;gap:32px}
+h1,h2,h3{font-family:var(--f);margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+p{margin:0}
+.eyebrow{font:600 11px/1 var(--f);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:74ch;color:var(--muted)}
+section{display:grid;gap:14px}
+.sechead{display:grid;gap:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:8px;align-content:start}
+.grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.grid6{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.k{font:600 11px/1 var(--f);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+ul{margin:0;padding-left:18px;display:grid;gap:4px}
+code,.mono{font-family:var(--m);font-size:.86em}
+.flow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px;min-width:0}
+.step b{font-size:13px}
+.step span{color:var(--muted);font-size:13px}
+.loop{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:14px}
+.band{display:grid;grid-template-columns:168px minmax(0,1fr);background:var(--band);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rail{padding:12px;border-right:1px solid var(--line);background:var(--surface);display:grid;gap:4px;align-content:start}
+.rail .host{font:500 11px/1.35 var(--m);color:var(--accent)}
+.cells{display:grid;gap:8px;padding:12px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.node{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:4px}
+.node .t{font-weight:700}
+.node .d{color:var(--muted);font-size:13px}
+.node.opt{border-style:dashed}
+.conn{text-align:center;color:var(--muted);font-size:13px}
+.life{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:4px}
+.stage.gate{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 8%,var(--surface))}
+.truths{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.truth{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:4px}
+.truth b{font-size:14px}
+.note{font-size:13px;color:var(--muted)}
+footer{display:grid;gap:8px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+@media(max-width:900px){
+  .grid2,.grid3,.grid6,.flow,.life,.truths{grid-template-columns:1fr}
+  .band{grid-template-columns:1fr}
+  .rail{border-right:0;border-bottom:1px solid var(--line)}
+}
+@media print{body{background:#fff}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="sechead">
+  <span class="eyebrow">L&amp;P Global Security · target architecture · 14 Oct 2026</span>
+  <h1>How the platform is set up</h1>
+  <p class="lede">One internal system for finding work, deciding whether to bid, pricing it, writing the proposal, and then running the contract. Google Cloud is the platform. The current application is a draft of the behavior, not the decision about where this runs.</p>
+</header>
+
+<section>
+  <div class="sechead"><span class="eyebrow">What owners are looking at</span><h2>One platform, three results</h2></div>
+  <div class="grid3">
+    <article class="card"><span class="k">Primary</span><h3>Stronger proposals</h3><p>Accurate, complete, buyer-specific responses, built from company proof and from what won or lost before.</p></article>
+    <article class="card"><span class="k">Growth</span><h3>The right pursuits</h3><p>Find opportunities, understand the buyer, and qualify the work before L&amp;P spends a proposal on it.</p></article>
+    <article class="card"><span class="k">Protection</span><h3>Delivery and renewal</h3><p>Know the commitment, the actual economics, and the renewal or recompete date before it becomes a surprise.</p></article>
+  </div>
+  <p class="loop">People and ChatGPT or Claude do the work. The platform keeps the files, the decisions, and the place to resume. Buyers and competitors are records. They do not get logins. Finished bids leave as files and are submitted on the buyer’s own portal, email, or paper.</p>
+</section>
+
+<section>
+  <div class="sechead">
+    <span class="eyebrow">How a bid moves</span>
+    <h2>Same capabilities, one path</h2>
+    <p class="lede">These six jobs are how the work is organized. They are not six separate products.</p>
+  </div>
+  <div class="flow">
+    <div class="step"><b>A · Evidence</b><span>Collect the solicitation, company proof, and buyer history. Keep the original file.</span></div>
+    <div class="step"><b>B · Analysis</b><span>Compare requirements, prices, and past results. Say what is known and what is not.</span></div>
+    <div class="step"><b>C · Decision</b><span>Choose bid or no-bid, staffing, and price. A person records the decision.</span></div>
+    <div class="step"><b>D · Documents</b><span>Write the proposal, forms, and price schedule in the buyer’s format.</span></div>
+    <div class="step"><b>E · Record</b><span>Save the exact submission, the outcome, and the contract that follows.</span></div>
+    <div class="step"><b>F · Coordination</b><span>Assign the work, let an authorized agent continue it, and alert what is due.</span></div>
+  </div>
+  <p class="loop">Learning loop: the score, the debrief, and the contract’s actual cost come back into evidence. The next proposal starts from that, not from a blank chat.</p>
+</section>
+
+<section>
+  <div class="sechead">
+    <span class="eyebrow">Google Cloud</span>
+    <h2>Where each part runs</h2>
+    <p class="lede">Read top to bottom. Day-to-day work never depends on the warehouse at the bottom.</p>
+  </div>
+
+  <div class="band">
+    <div class="rail"><span class="eyebrow">Who uses it</span><span class="host">Outside Google Cloud</span></div>
+    <div class="cells">
+      <div class="node"><span class="t">L&amp;P staff</span><span class="d">Bid desk, operations, and leadership in the browser.</span></div>
+      <div class="node"><span class="t">ChatGPT and Claude</span><span class="d">The person’s own subscription does the writing and reasoning. It calls the platform’s tools. The platform does not call a second model to answer that chat.</span></div>
+      <div class="node"><span class="t">Source systems</span><span class="d">Public bid sites, Google Drive, and — when connected — QuickBooks, Belfry, and the CRM L&amp;P already uses. Those systems stay the books, the schedule, and the contact list.</span></div>
+    </div>
+  </div>
+  <p class="conn">sign-in · the same permissions for a person and for their agent</p>
+
+  <div class="band">
+    <div class="rail"><span class="eyebrow">Application</span><span class="host">Cloud Run</span></div>
+    <div class="cells">
+      <div class="node"><span class="t">Staff workspace</span><span class="d">Home, pursuits, intelligence, contracts, and data operations. One web application.</span></div>
+      <div class="node"><span class="t">Same business rules</span><span class="d">The screen and the agent call the same services: qualify, price, draft, export, and record the result.</span></div>
+      <div class="node"><span class="t">Staff identity</span><span class="d">Each person sees only L&amp;P’s records. An agent acts as that person, not as a shared password.</span></div>
+    </div>
+  </div>
+  <p class="conn">heavy files and calculations go to the worker · ordinary reads stay here</p>
+
+  <div class="band">
+    <div class="rail"><span class="eyebrow">Worker</span><span class="host">Cloud Run</span></div>
+    <div class="cells">
+      <div class="node"><span class="t">Parse and OCR</span><span class="d">PDF, Word, and Excel. Scans use OCR on this worker. Clean files are not sent through OCR.</span></div>
+      <div class="node"><span class="t">Checks</span><span class="d">Coverage, shifts, breaks, and paid hours. A schedule that cannot be worked is not a price.</span></div>
+      <div class="node"><span class="t">Exports</span><span class="d">Word, PDF, and workbooks. Google Docs is a working copy when Drive is connected.</span></div>
+    </div>
+  </div>
+  <p class="conn">originals and candidates are saved · the worker never declares a fact verified</p>
+
+  <div class="band">
+    <div class="rail"><span class="eyebrow">Live records</span><span class="host">Cloud SQL · Cloud Storage</span></div>
+    <div class="cells">
+      <div class="node"><span class="t">Evidence vault</span><span class="d">Cloud Storage. The original file, checksum, and version. Never overwritten.</span></div>
+      <div class="node"><span class="t">Working records</span><span class="d">Cloud SQL for PostgreSQL. Pursuits, prices, proposals, contracts, tasks, and the audit of who changed what.</span></div>
+      <div class="node"><span class="t">Search</span><span class="d">Full-text search on the verified text. This works with no outside model key.</span></div>
+    </div>
+  </div>
+  <p class="conn">a copy for history, not a second place to edit the bid</p>
+
+  <div class="band">
+    <div class="rail"><span class="eyebrow">History</span><span class="host">BigQuery</span></div>
+    <div class="cells">
+      <div class="node"><span class="t">Warehouse</span><span class="d">Trends across bids, awards, and — once connected — accounting and workforce actuals.</span></div>
+      <div class="node"><span class="t">Shared metrics</span><span class="d">Dataform holds one tested definition per number owners see.</span></div>
+      <div class="node opt"><span class="t">In-app model</span><span class="d">Optional, on Google Cloud. Used only if L&amp;P turns on answers inside the app. Core records, search, and agent tools do not require it.</span></div>
+    </div>
+  </div>
+  <p class="note">Cloud Scheduler runs the daily checks: expirations, obligations due, and new public notices. Those checks notify. They do not price, approve, or submit. Cloud Workflows pauses document intake until a person verifies the facts, then continues.</p>
+</section>
+
+<section>
+  <div class="sechead"><span class="eyebrow">Trust</span><h2>How a file becomes a number you can use</h2></div>
+  <div class="life">
+    <div class="stage"><span class="k">1</span><b>Acquire</b><span class="note">Upload, Drive, a public notice, or a records request.</span></div>
+    <div class="stage"><span class="k">2</span><b>Keep the original</b><span class="note">Exact copy in the vault.</span></div>
+    <div class="stage"><span class="k">3</span><b>Extract</b><span class="note">Candidates, with the page or cell they came from.</span></div>
+    <div class="stage gate"><span class="k">4</span><b>A person checks</b><span class="note">Accept, correct, reject, or mark a conflict. The workflow waits here.</span></div>
+    <div class="stage"><span class="k">5</span><b>Promote</b><span class="note">Only the checked value is written into the business record.</span></div>
+    <div class="stage"><span class="k">6</span><b>Use</b><span class="note">Search, reports, the proposal, and the agent all read that record.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <span class="eyebrow">Prices stay separate</span>
+    <h2>Five figures, never one blended rate</h2>
+    <p class="lede">A bid total, a ceiling, and an hourly rate are not the same kind of number. These five stay in their own columns.</p>
+  </div>
+  <div class="truths">
+    <div class="truth"><b>Buyer requested</b><span class="note">What the solicitation asked for.</span></div>
+    <div class="truth"><b>L&amp;P cost</b><span class="note">What it costs to deliver. Not a bill rate.</span></div>
+    <div class="truth"><b>L&amp;P proposed</b><span class="note">What L&amp;P offered. Final only after a person approves it.</span></div>
+    <div class="truth"><b>Buyer awarded</b><span class="note">What the award document says.</span></div>
+    <div class="truth"><b>Current contract</b><span class="note">What applies now, after amendments.</span></div>
+  </div>
+  <p class="note">The price L&amp;P submits is a human decision. A model can prepare the comparison. It cannot approve the price.</p>
+</section>
+
+<section>
+  <div class="sechead"><span class="eyebrow">Also in this platform</span><h2>The rest of the business uses the same records</h2></div>
+  <div class="grid3">
+    <article class="card"><h3>Pipeline and outreach</h3><p>Leads, signals, and follow-up live here as L&amp;P work on buyer records. This does not become a customer portal, and it does not replace the CRM as the system of contact.</p></article>
+    <article class="card"><h3>Client history</h3><p>Reviews, issues, and corrective actions are records on the contract. They feed the next bid and the renewal. The client does not log in to see them.</p></article>
+    <article class="card"><h3>Company readiness</h3><p>Past performance, licenses, teaming, and training readiness stay current so a proposal can cite them without inventing a credential.</p></article>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="eyebrow">Still open</span><h2>What this picture does not pretend is finished</h2></div>
+  <div class="grid2">
+    <article class="card">
+      <h3>Keep the current application, or rebuild it on this layout</h3>
+      <p>That choice is still open. Either way, the target host is Google Cloud. Fly.io and the other hosts mentioned in the draft code are not this architecture.</p>
+    </article>
+    <article class="card">
+      <h3>Connections and proof still to do</h3>
+      <ul>
+        <li>QuickBooks and Belfry actuals are part of the design and are not connected yet.</li>
+        <li>Win probability is withheld until there is enough labeled history to support it.</li>
+        <li>One real bid still has to go from intake to a saved buyer-format package with a named list of what is unresolved.</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<footer>
+  <span><b>Authority for this page.</b> The Reference sheet is the description of the platform to be built. Google Cloud is the hosting decision. The current Contract Intelligence Platform repository shows behavior worth keeping; it does not decide the host, and a mismatch with that draft is not a conflict in this picture.</span>
+  <span>Durable copy: github.com/AshtonMedina22/claude_code_files — not the Claude scratch workspace, and not a claim about the current application repository. 14 Oct 2026.</span>
+</footer>
+</div>
+</body>
+</html>
