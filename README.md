@@ -7,4 +7,4 @@ Plans, diagrams and code produced with Claude Code.
 - [Architecture decisions](lp-platform/architecture/DECISIONS.md): design rules, layers, decisions D1–D12, build phases
 - [Architecture diagram](lp-platform/architecture/lp-platform-architecture.html): interactive layered diagram (open in a browser)
 - [Starter stack](lp-platform/architecture/STARTER-STACK.md): verified install list per layer (template vs. individual packages)
-- [Architecture history](lp-platform/architecture/history/README.md): earlier versions and an unconfirmed all-Google-Cloud alternative.
+- [Architecture history](lp-platform/architecture/history/README.md): earlier versions (v1, v2) and the all-Google-Cloud alternative, which was not adopted.
