@@ -1,6 +1,8 @@
 # L&P Platform: Starter Stack
 
-Researched 14 Oct 2026. Implements [DECISIONS.md](DECISIONS.md) (D1–D12).
+Researched 14 Oct 2026. Implements [DECISIONS.md](DECISIONS.md) (D1–D12). This is the "install first" subset of [FULL-STACK.md](FULL-STACK.md).
+
+> ⚠ Step 8: research on 15 Oct 2026 found Supabase's OAuth 2.1 server not yet ready for ChatGPT/Claude. See FULL-STACK.md change C1 (Better Auth). This is pending the owner's decision.
 
 ## Verdict: minimal official scaffold, then add pieces by layer
 
