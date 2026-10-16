@@ -98,13 +98,19 @@ section{display:grid;gap:14px;min-width:0}
 .key em{display:inline-block;width:22px;height:12px;border-radius:3px;font-style:normal}
 .note{font-size:13px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--g-data);border-radius:8px;padding:10px 14px}
 
-@page{size:letter landscape;margin:0.35in}
+@page{size:letter landscape;margin:0.3in}
 @media print{
+  .page2 .blk{padding:2px 7px;line-height:1.3}
+  .page2 .grid{row-gap:3px}
+  .page2 .flow .fs{padding:3px 7px}
+  .page2 h2{font-size:17px}
+  .page2{gap:7px}
+  .page2 .colhead{padding:4px 10px}
   body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .wrap{max-width:none;padding:0;gap:16px}
   .page2{break-before:page}
   .wrap .goals{grid-template-columns:repeat(5,minmax(0,1fr))}
-  .wrap .grid{grid-template-columns:165px repeat(3,minmax(0,1fr))}
+  .wrap .grid{grid-template-columns:185px repeat(3,minmax(0,1fr))}
   .grid{row-gap:4px}
   .flow .fs{padding:6px 9px}
   .wrap .loop{grid-template-columns:repeat(6,minmax(0,1fr))}
@@ -160,13 +166,13 @@ section{display:grid;gap:14px;min-width:0}
     <div class="goal"><span class="k">Growth</span><h3>Find and convert business</h3>
       <ul><li>Which buyers to pursue, when, and with what advantage</li><li>A qualified next-contact list with “why now”</li><li>Which sources and messages win customers</li></ul>
       <div class="needs"><span>Market analysis</span><span>Recompete calendar</span><span>Lead scoring</span><span>Pwin</span><span>Outreach tracking</span></div></div>
-    <div class="goal"><span class="k">Protection</span><h3>Protect revenue and clients</h3>
+    <div class="goal"><span class="k">Protection</span><h3>Protect revenue and relationships</h3>
       <ul><li>Authorization gaps and renewals flagged in time</li><li>Contract economics and billing exceptions explained</li><li>Client issues owned before renewal</li></ul>
-      <div class="needs"><span>Contract records</span><span>QuickBooks + Belfry</span><span>Alerts</span><span>Client reviews</span></div></div>
-    <div class="goal"><span class="k">Readiness</span><h3>Strengthen capability</h3>
+      <div class="needs"><span>Contract records</span><span>QuickBooks + Belfry exports</span><span>Alerts</span><span>Client reviews</span></div></div>
+    <div class="goal"><span class="k">Readiness</span><h3>Strengthen company capability</h3>
       <ul><li>Verified past performance ready to reuse</li><li>Credential and eligibility gaps visible</li><li>Partner, expansion and training plans</li></ul>
       <div class="needs"><span>Evidence library</span><span>Credential tracking</span><span>Expansion tracking</span></div></div>
-    <div class="goal"><span class="k">Shared</span><h3>Reusable intelligence</h3>
+    <div class="goal"><span class="k">Shared</span><h3>Reusable organizational intelligence</h3>
       <ul><li>Every bid adds knowledge for the next</li><li>ChatGPT and Claude work from the same records</li><li>Less repeated research and re-entry</li></ul>
       <div class="needs"><span>One source of truth</span><span>AI agent access</span><span>Automation</span></div></div>
   </div>
@@ -185,12 +191,12 @@ section{display:grid;gap:14px;min-width:0}
 <section class="page2" aria-labelledby="l">
   <div class="head"><span class="eyebrow">2 · Reference architecture</span><h2 id="l">Layered architecture from data ingestion to user access, across three build options</h2></div>
   <div class="flow" aria-label="How the layers connect">
-    <div class="fs src2"><b>Sources</b><span>RFPs, past bids, public awards, QuickBooks, Belfry</span></div><span class="fa">→</span>
-    <div class="fs data"><b>Ingest</b><span>Connectors + workers (Cloud Run)</span></div><span class="fa">→</span>
+    <div class="fs src2"><b>Sources</b><span>RFPs, past bids, public awards, QuickBooks, Belfry exports</span></div><span class="fa">→</span>
+    <div class="fs data"><b>Ingest</b><span>Connectors + workers (Cloud Run jobs, worker pools)</span></div><span class="fa">→</span>
     <div class="fs data core"><b>Store</b><span>Database, files, search (Supabase)</span></div><span class="fa">→</span>
     <div class="fs int"><b>Analyze</b><span>Warehouse + AI (Google Cloud)</span></div><span class="fa">→</span>
-    <div class="fs int"><b>Back end</b><span>API, rules, permissions (Vercel)</span></div><span class="fa">→</span>
-    <div class="fs use"><b>Access</b><span>Claude / ChatGPT first, plus staff web app</span></div>
+    <div class="fs int"><b>Back end</b><span>API, sign-in, permissions (Vercel)</span></div><span class="fa">→</span>
+    <div class="fs use"><b>Access</b><span>Claude Enterprise / ChatGPT first, plus staff web app</span></div>
   </div>
   <div class="key">
     <span><em style="background:var(--g-use)"></em>Use</span><span><em style="background:var(--g-int)"></em>Intelligence</span><span><em style="background:var(--g-data)"></em>Data</span><span><em style="background:var(--g-ops)"></em>Operations</span>
@@ -205,63 +211,63 @@ section{display:grid;gap:14px;min-width:0}
     <div class="colhead"><b>2 · Enterprise data &amp; AI</b><span>Pwin, price-to-win, leads, market</span></div>
     <div class="colhead"><b>3 · Full operating platform</b><span>Everything in the Reference sheet</span></div>
 
-    <div class="ln data"><i></i><div><em class="tier">SOURCES IN · Cloud Run</em><b>Connectors</b><span>Scheduled Cloud Run jobs</span></div></div>
-    <div class="blk data f">Procurement sites, Drive, QuickBooks, Belfry</div>
-    <div class="blk data a"><span class="plus">+</span>USAspending, SAM.gov, wage data, bid tabs</div>
-    <div class="blk data a"><span class="plus">+</span>Apollo / ZoomInfo, Gmail, review tools</div>
+    <div class="ln data"><i></i><div><em class="tier">SOURCES IN · Cloud Run</em><b>Connectors</b><span>Cloud Run jobs · Cloud Scheduler</span></div></div>
+    <div class="blk data f">Texas ESBD + local portals, Drive, QuickBooks, Belfry exports</div>
+    <div class="blk data a"><span class="plus">+</span>USAspending, SAM.gov, wage determinations, bid tabs (records requests)</div>
+    <div class="blk data a"><span class="plus">+</span>Apollo / ZoomInfo, Gmail, Google reviews (approved access)</div>
 
-    <div class="ln data"><i></i><div><b>Workers</b><span>Python · Cloud Run</span></div></div>
-    <div class="blk data f">OCR, document parsing, portal crawlers, document output</div>
+    <div class="ln data"><i></i><div><b>Workers</b><span>Python · Cloud Run jobs + worker pools</span></div></div>
+    <div class="blk data f">OCR, document parsing, portal crawling, document output</div>
     <div class="blk data a"><span class="plus">+</span>More portals, continuous crawling</div>
-    <div class="blk data a"><span class="plus">+</span>24/7 crawling and enrichment</div>
+    <div class="blk data a"><span class="plus">+</span>Always-on crawling and enrichment</div>
 
     <div class="ln data core"><i></i><div><em class="tier">DATA · Supabase</em><b>Database</b><span>PostgreSQL · system of record</span></div></div>
     <div class="blk data f core">Bids, requirements, prices, staffing, contracts, competitors, outcomes</div>
-    <div class="blk data a"><span class="plus">+</span>Change history, staging copy, point-in-time recovery</div>
+    <div class="blk data a"><span class="plus">+</span>History tables, staging project, point-in-time recovery</div>
     <div class="blk data a"><span class="plus">+</span>Leads, outreach, client reviews, credentials</div>
 
     <div class="ln data"><i></i><div><b>File storage</b><span>Supabase Storage</span></div></div>
-    <div class="blk data f">Original RFPs, proposals, contracts, versioned</div>
+    <div class="blk data f">Original RFPs, proposals, contracts; each version kept as a new file</div>
     <div class="blk data a"><span class="plus">+</span>Public awards and bid tabulations</div>
     <div class="blk data f">Same as option 2</div>
 
     <div class="ln data"><i></i><div><b>Search</b><span>Full-text + pgvector, inside PostgreSQL</span></div></div>
-    <div class="blk data f">Keyword and meaning search over verified text</div>
+    <div class="blk data f">Keyword (full-text) + meaning (embeddings) search over verified text</div>
     <div class="blk data f">Same as option 1</div>
     <div class="blk data f">Same as option 1</div>
 
     <div class="ln int"><i></i><div><em class="tier">ANALYTICS + AI · Google Cloud</em><b>Data warehouse</b><span>BigQuery · Dataform</span></div></div>
     <div class="blk int p">Not yet: reports run on the database</div>
-    <div class="blk int a"><span class="plus">+</span>Multi-year history, Pwin and price models</div>
+    <div class="blk int a"><span class="plus">+</span>Multi-year history; Pwin and price models (BigQuery ML or Python)</div>
     <div class="blk int a"><span class="plus">+</span>Marketing, client and expansion analytics</div>
 
-    <div class="ln int"><i></i><div><b>AI services</b><span>Gemini · Vertex AI</span></div></div>
-    <div class="blk int f">Extraction, drafting, meaning-based search</div>
+    <div class="ln int"><i></i><div><b>AI services</b><span>Gemini · Agent Platform (formerly Vertex AI)</span></div></div>
+    <div class="blk int f">Extraction, drafting, embeddings for search</div>
     <div class="blk int a"><span class="plus">+</span>Model insights on scores</div>
     <div class="blk int a"><span class="plus">+</span>Agent automation at volume</div>
 
-    <div class="ln int"><i></i><div><em class="tier">BACK END · Vercel</em><b>Backend / API</b><span>Sign-in, permissions, services, workflows</span></div></div>
+    <div class="ln int"><i></i><div><em class="tier">BACK END · Vercel</em><b>Backend / API</b><span>Next.js API · auth · Vercel Workflows</span></div></div>
     <div class="blk int f">Staffing and pricing engine, approvals</div>
     <div class="blk int a"><span class="plus">+</span>Pwin scorecard, price-to-win, lead scoring</div>
     <div class="blk int a"><span class="plus">+</span>Outreach sequences, records-request follow-up</div>
 
-    <div class="ln use"><i></i><div><em class="tier">ACCESS (FRONT END) · Vercel</em><b>AI agents (primary)</b><span>Claude + ChatGPT via MCP server</span></div></div>
-    <div class="blk use f">Claude and ChatGPT read, search and update records, per-person permissions</div>
+    <div class="ln use"><i></i><div><em class="tier">ACCESS (FRONT END) · Vercel</em><b>AI agents (primary)</b><span>Claude Enterprise + ChatGPT via MCP</span></div></div>
+    <div class="blk use f">Each person signs in; agents read, search and update with that person’s permissions</div>
     <div class="blk use f">Same as option 1</div>
-    <div class="blk use a"><span class="plus">+</span>Autonomous scheduled agents</div>
+    <div class="blk use a"><span class="plus">+</span>Scheduled agents (Claude routines or API agents)</div>
 
     <div class="ln use"><i></i><div><b>Staff web app</b><span>Next.js · review, approvals, dashboards</span></div></div>
     <div class="blk use f">Bid, pricing and contract workspace</div>
     <div class="blk use a"><span class="plus">+</span>Market and pipeline dashboards</div>
     <div class="blk use a"><span class="plus">+</span>Sales, client and executive views</div>
 
-    <div class="ln ops"><i></i><div><em class="tier">ACROSS ALL LAYERS</em><b>Operations</b><span>CI/CD · Sentry · monitoring</span></div></div>
+    <div class="ln ops"><i></i><div><em class="tier">ACROSS ALL LAYERS</em><b>Operations</b><span>GitHub CI/CD · Sentry · Cloud Monitoring</span></div></div>
     <div class="blk ops f">Backups, monitoring, alerts</div>
     <div class="blk ops a"><span class="plus">+</span>Staging and production</div>
     <div class="blk ops a"><span class="plus">+</span>Agent cost and safety limits</div>
   </div>
   </div>
-  <p class="note"><b>Why the database comes first:</b> every other layer reads from or writes to it. AI agents can’t work accurately across a spreadsheet of 87 tabs (about 2.35 million tokens, larger than any AI’s reading window). In a database, an agent asks a precise question and gets back only the matching records.</p>
+  <p class="note"><b>Why the database comes first:</b> it is the system of record; only the back end and workers read or write it. The current 87-tab sheet is about 2.35M tokens, more than twice the 1M-token windows of current Claude, GPT and Gemini models, and AI accuracy drops as input grows. A database lets an agent query only the records it needs.</p>
 </section>
 </div>
 
