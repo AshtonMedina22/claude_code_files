@@ -190,7 +190,7 @@ section{display:grid;gap:14px;min-width:0}
     <div class="fs data core"><b>Store</b><span>Database, files, search (Supabase)</span></div><span class="fa">→</span>
     <div class="fs int"><b>Analyze</b><span>Warehouse + AI (Google Cloud)</span></div><span class="fa">→</span>
     <div class="fs int"><b>Back end</b><span>API, rules, permissions (Vercel)</span></div><span class="fa">→</span>
-    <div class="fs use"><b>Access</b><span>Staff web app + ChatGPT / Claude</span></div>
+    <div class="fs use"><b>Access</b><span>Claude / ChatGPT first, plus staff web app</span></div>
   </div>
   <div class="key">
     <span><em style="background:var(--g-use)"></em>Use</span><span><em style="background:var(--g-int)"></em>Intelligence</span><span><em style="background:var(--g-data)"></em>Data</span><span><em style="background:var(--g-ops)"></em>Operations</span>
@@ -245,15 +245,15 @@ section{display:grid;gap:14px;min-width:0}
     <div class="blk int a"><span class="plus">+</span>Pwin scorecard, price-to-win, lead scoring</div>
     <div class="blk int a"><span class="plus">+</span>Outreach sequences, records-request follow-up</div>
 
-    <div class="ln use"><i></i><div><em class="tier">ACCESS (FRONT END) · Vercel</em><b>Frontend</b><span>Next.js web app · staff</span></div></div>
+    <div class="ln use"><i></i><div><em class="tier">ACCESS (FRONT END) · Vercel</em><b>AI agents (primary)</b><span>Claude + ChatGPT via MCP server</span></div></div>
+    <div class="blk use f">Claude and ChatGPT read, search and update records, per-person permissions</div>
+    <div class="blk use f">Same as option 1</div>
+    <div class="blk use a"><span class="plus">+</span>Autonomous scheduled agents</div>
+
+    <div class="ln use"><i></i><div><b>Staff web app</b><span>Next.js · review, approvals, dashboards</span></div></div>
     <div class="blk use f">Bid, pricing and contract workspace</div>
     <div class="blk use a"><span class="plus">+</span>Market and pipeline dashboards</div>
     <div class="blk use a"><span class="plus">+</span>Sales, client and executive views</div>
-
-    <div class="ln use"><i></i><div><b>AI agent gateway</b><span>MCP server · ChatGPT and Claude</span></div></div>
-    <div class="blk use f">Per-person permissions; ChatGPT and Claude</div>
-    <div class="blk use f">Same as option 1</div>
-    <div class="blk use a"><span class="plus">+</span>Autonomous scheduled agents</div>
 
     <div class="ln ops"><i></i><div><em class="tier">ACROSS ALL LAYERS</em><b>Operations</b><span>CI/CD · Sentry · monitoring</span></div></div>
     <div class="blk ops f">Backups, monitoring, alerts</div>
