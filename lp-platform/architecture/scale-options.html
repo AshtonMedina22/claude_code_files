@@ -71,12 +71,17 @@ section{display:grid;gap:14px;min-width:0}
 .fs.int{background:var(--g-int-soft);border-left:4px solid var(--g-int)}
 .fs.use{background:var(--g-use-soft);border-left:4px solid var(--g-use)}
 .fa{align-self:center;color:var(--muted);font-weight:700}
-.grid{display:grid;grid-template-columns:150px repeat(3,minmax(0,1fr));gap:6px 10px;align-items:stretch}
+.grid{display:grid;grid-template-columns:175px repeat(3,minmax(0,1fr));gap:6px 10px;align-items:stretch}
 .colhead{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
 .colhead b{font-size:14.5px}
 .colhead span{font-size:12px;color:var(--muted)}
 .ln{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
 .ln i{width:10px;height:10px;border-radius:3px;flex:none}
+.ln > div{display:grid;gap:1px;min-width:0}
+.ln > div span{font-size:11px;font-weight:500;color:var(--muted)}
+.ln.core b{font-size:14.5px}
+.blk.core{border-width:2.5px;font-weight:600}
+.fs.core{border-left-width:6px;box-shadow:inset 0 0 0 1.5px var(--g-data)}
 .blk{border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.35;display:flex;gap:6px;align-items:flex-start;min-width:0}
 .blk .plus{flex:none;font-weight:800;font-size:12px;line-height:1.35}
 .use{--c:var(--g-use);--s:var(--g-use-soft)} .int{--c:var(--g-int);--s:var(--g-int-soft)}
@@ -97,9 +102,15 @@ section{display:grid;gap:14px;min-width:0}
   .wrap{max-width:none;padding:0;gap:16px}
   .page2{break-before:page}
   .wrap .goals{grid-template-columns:repeat(5,minmax(0,1fr))}
-  .wrap .grid{grid-template-columns:140px repeat(3,minmax(0,1fr))}
+  .wrap .grid{grid-template-columns:165px repeat(3,minmax(0,1fr))}
+  .grid{row-gap:4px}
+  .flow .fs{padding:6px 9px}
   .wrap .loop{grid-template-columns:repeat(6,minmax(0,1fr))}
-  .blk{padding:5px 9px;font-size:11.5px}
+  .blk{padding:3px 8px;font-size:11px}
+  .page2 h2{font-size:18px}
+  .colhead{padding:6px 10px}
+  .note{padding:7px 12px;font-size:12px}
+  .flow .fs span{font-size:11px}
   section.page2{break-inside:avoid}
   .wrap > header .lede{display:none}
   .wrap > header{gap:4px}
@@ -126,7 +137,7 @@ section{display:grid;gap:14px;min-width:0}
 <header class="head">
   <span class="eyebrow">L&amp;P Global Security · for discussion · October 2026</span>
   <h1>L&amp;P Platform Scale Options</h1>
-  <p class="lede">Page 1: my understanding of what leadership expects the platform to deliver. Page 2: the technology layers needed, and how three build options differ layer by layer.</p>
+  <p class="lede">Page 1: my understanding of what leadership expects the platform to deliver. Page 2: the technology layers needed, with the database at the center, and how three build options differ layer by layer.</p>
 </header>
 
 <section aria-labelledby="g">
@@ -161,12 +172,12 @@ section{display:grid;gap:14px;min-width:0}
 </section>
 
 <section class="page2" aria-labelledby="l">
-  <div class="head"><span class="eyebrow">2 · The technology layers</span><h2 id="l">Nine layers; each option builds on the one before</h2></div>
+  <div class="head"><span class="eyebrow">2 · The technology layers</span><h2 id="l">Eleven layers with the database at the center; each option builds on the one before</h2></div>
   <div class="flow" aria-label="How the layers connect">
     <div class="fs src2"><b>Sources</b><span>RFPs, past bids, public awards, QuickBooks, Belfry</span></div><span class="fa">→</span>
-    <div class="fs data"><b>Integrations + processing</b><span>pull, read and extract</span></div><span class="fa">→</span>
-    <div class="fs data"><b>Operational data</b><span>verified facts and documents</span></div><span class="fa">→</span>
-    <div class="fs int"><b>Logic, AI + analytics</b><span>pricing, scoring, models</span></div><span class="fa">→</span>
+    <div class="fs data"><b>Integrations + processing</b><span>pull, read and extract (Cloud Run)</span></div><span class="fa">→</span>
+    <div class="fs data core"><b>Database + documents</b><span>PostgreSQL + file storage: the system of record</span></div><span class="fa">→</span>
+    <div class="fs int"><b>Logic, AI + analytics</b><span>pricing, scoring, BigQuery models</span></div><span class="fa">→</span>
     <div class="fs use"><b>Interface + AI agents</b><span>staff, ChatGPT and Claude</span></div>
   </div>
   <div class="key">
@@ -182,53 +193,63 @@ section{display:grid;gap:14px;min-width:0}
     <div class="colhead"><b>2 · Enterprise data &amp; AI</b><span>Pwin, price-to-win, leads, market</span></div>
     <div class="colhead"><b>3 · Full operating platform</b><span>Everything in the Reference sheet</span></div>
 
-    <div class="ln use"><i></i>Interface</div>
+    <div class="ln use"><i></i><div><b>Interface</b><span>Next.js web app · Vercel</span></div></div>
     <div class="blk use f">Bid, pricing and contract workspace</div>
     <div class="blk use a"><span class="plus">+</span>Market and pipeline dashboards</div>
     <div class="blk use a"><span class="plus">+</span>Sales, client and executive views</div>
 
-    <div class="ln use"><i></i>Access &amp; AI agents</div>
+    <div class="ln use"><i></i><div><b>AI agent access</b><span>MCP server · sign-in</span></div></div>
     <div class="blk use f">Per-person permissions; ChatGPT and Claude</div>
     <div class="blk use f">Same as option 1</div>
     <div class="blk use a"><span class="plus">+</span>Autonomous scheduled agents</div>
 
-    <div class="ln int"><i></i>Business logic</div>
+    <div class="ln int"><i></i><div><b>Business logic</b><span>App services · workflows</span></div></div>
     <div class="blk int f">Staffing and pricing engine, approvals</div>
     <div class="blk int a"><span class="plus">+</span>Pwin scorecard, price-to-win, lead scoring</div>
     <div class="blk int a"><span class="plus">+</span>Outreach sequences, records-request follow-up</div>
 
-    <div class="ln int"><i></i>AI services</div>
+    <div class="ln int"><i></i><div><b>AI services</b><span>Gemini · Vertex AI</span></div></div>
     <div class="blk int f">Extraction, drafting, meaning-based search</div>
     <div class="blk int a"><span class="plus">+</span>Model insights on scores</div>
     <div class="blk int a"><span class="plus">+</span>Agent automation at volume</div>
 
-    <div class="ln int"><i></i>Analytics</div>
-    <div class="blk int p">Metrics and comparisons in the database</div>
-    <div class="blk int a"><span class="plus">+</span>BigQuery warehouse, Pwin and price models</div>
+    <div class="ln int"><i></i><div><b>Data warehouse</b><span>BigQuery · Dataform</span></div></div>
+    <div class="blk int p">Not yet: reports run on the database</div>
+    <div class="blk int a"><span class="plus">+</span>Multi-year history, Pwin and price models</div>
     <div class="blk int a"><span class="plus">+</span>Marketing, client and expansion analytics</div>
 
-    <div class="ln data"><i></i>Processing</div>
-    <div class="blk data f">OCR pipeline, portal crawlers, document output</div>
-    <div class="blk data a"><span class="plus">+</span>More portals, continuous crawling</div>
-    <div class="blk data a"><span class="plus">+</span>24/7 crawling and enrichment</div>
+    <div class="ln data core"><i></i><div><b>Database</b><span>PostgreSQL · Supabase</span></div></div>
+    <div class="blk data f core">Bids, requirements, prices, staffing, contracts, competitors, outcomes</div>
+    <div class="blk data a"><span class="plus">+</span>Change history, staging copy, point-in-time recovery</div>
+    <div class="blk data a"><span class="plus">+</span>Leads, outreach, client reviews, credentials</div>
 
-    <div class="ln data"><i></i>Integrations</div>
+    <div class="ln data"><i></i><div><b>Document storage</b><span>Supabase Storage</span></div></div>
+    <div class="blk data f">Original RFPs, proposals, contracts, versioned</div>
+    <div class="blk data a"><span class="plus">+</span>Public awards and bid tabulations</div>
+    <div class="blk data f">Same as option 2</div>
+
+    <div class="ln data"><i></i><div><b>Search index</b><span>Full-text + pgvector</span></div></div>
+    <div class="blk data f">Keyword and meaning search over verified text</div>
+    <div class="blk data f">Same as option 1</div>
+    <div class="blk data f">Same as option 1</div>
+
+    <div class="ln data"><i></i><div><b>Integrations</b><span>Scheduled Cloud Run jobs</span></div></div>
     <div class="blk data f">Procurement sites, Drive, QuickBooks, Belfry</div>
     <div class="blk data a"><span class="plus">+</span>USAspending, SAM.gov, wage data, bid tabs</div>
     <div class="blk data a"><span class="plus">+</span>Apollo / ZoomInfo, Gmail, review tools</div>
 
-    <div class="ln data"><i></i>Operational data</div>
-    <div class="blk data f">Verified facts, history, outcome capture</div>
-    <div class="blk data a"><span class="plus">+</span>Staging environment, point-in-time recovery</div>
-    <div class="blk data f">Same as option 2</div>
+    <div class="ln data"><i></i><div><b>Processing</b><span>Python · Cloud Run</span></div></div>
+    <div class="blk data f">OCR pipeline, portal crawlers, document output</div>
+    <div class="blk data a"><span class="plus">+</span>More portals, continuous crawling</div>
+    <div class="blk data a"><span class="plus">+</span>24/7 crawling and enrichment</div>
 
-    <div class="ln ops"><i></i>Operations</div>
+    <div class="ln ops"><i></i><div><b>Operations</b><span>CI/CD · Sentry · monitoring</span></div></div>
     <div class="blk ops f">Backups, monitoring, alerts</div>
     <div class="blk ops a"><span class="plus">+</span>Staging and production</div>
     <div class="blk ops a"><span class="plus">+</span>Agent cost and safety limits</div>
   </div>
   </div>
-  <p class="note"><b>Why the data layer comes first:</b> AI agents can’t work accurately across a spreadsheet of 87 tabs (about 2.35 million tokens, larger than any AI’s reading window). A database lets an agent ask a precise question and get back only the matching records.</p>
+  <p class="note"><b>Why the database comes first:</b> every other layer reads from or writes to it. AI agents can’t work accurately across a spreadsheet of 87 tabs (about 2.35 million tokens, larger than any AI’s reading window). In a database, an agent asks a precise question and gets back only the matching records.</p>
 </section>
 </div>
 
