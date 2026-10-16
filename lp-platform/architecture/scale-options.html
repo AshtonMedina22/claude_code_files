@@ -77,6 +77,7 @@ section{display:grid;gap:14px;min-width:0}
 .colhead span{font-size:12px;color:var(--muted)}
 .ln{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
 .ln i{width:10px;height:10px;border-radius:3px;flex:none}
+.ln .tier{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--c)}
 .ln > div{display:grid;gap:1px;min-width:0}
 .ln > div span{font-size:11px;font-weight:500;color:var(--muted)}
 .ln.core b{font-size:14.5px}
@@ -110,7 +111,15 @@ section{display:grid;gap:14px;min-width:0}
   .page2 h2{font-size:18px}
   .colhead{padding:6px 10px}
   .note{padding:7px 12px;font-size:12px}
-  .flow .fs span{font-size:11px}
+  .flow .fs span{font-size:10.5px}
+  .flow .fs{padding:4px 8px}
+  .ln b{font-size:12.5px}
+  .ln.core b{font-size:13px}
+  .ln > div span{font-size:10px}
+  .ln .tier{font-size:8.5px}
+  .ln > div{gap:0;line-height:1.2}
+  .key{font-size:11px}
+  .wrap > header h1{font-size:24px}
   section.page2{break-inside:avoid}
   .wrap > header .lede{display:none}
   .wrap > header{gap:4px}
@@ -172,13 +181,14 @@ section{display:grid;gap:14px;min-width:0}
 </section>
 
 <section class="page2" aria-labelledby="l">
-  <div class="head"><span class="eyebrow">2 · The technology layers</span><h2 id="l">Eleven layers with the database at the center; each option builds on the one before</h2></div>
+  <div class="head"><span class="eyebrow">2 · The technology layers</span><h2 id="l">Back end to front end: ingest, store, analyze, serve, then staff and AI agents access it</h2></div>
   <div class="flow" aria-label="How the layers connect">
     <div class="fs src2"><b>Sources</b><span>RFPs, past bids, public awards, QuickBooks, Belfry</span></div><span class="fa">→</span>
-    <div class="fs data"><b>Integrations + processing</b><span>pull, read and extract (Cloud Run)</span></div><span class="fa">→</span>
-    <div class="fs data core"><b>Database + documents</b><span>PostgreSQL + file storage: the system of record</span></div><span class="fa">→</span>
-    <div class="fs int"><b>Logic, AI + analytics</b><span>pricing, scoring, BigQuery models</span></div><span class="fa">→</span>
-    <div class="fs use"><b>Interface + AI agents</b><span>staff, ChatGPT and Claude</span></div>
+    <div class="fs data"><b>Ingest</b><span>Connectors + workers (Cloud Run)</span></div><span class="fa">→</span>
+    <div class="fs data core"><b>Store</b><span>Database, files, search (Supabase)</span></div><span class="fa">→</span>
+    <div class="fs int"><b>Analyze</b><span>Warehouse + AI (Google Cloud)</span></div><span class="fa">→</span>
+    <div class="fs int"><b>Back end</b><span>API, rules, permissions (Vercel)</span></div><span class="fa">→</span>
+    <div class="fs use"><b>Access</b><span>Staff web app + ChatGPT / Claude</span></div>
   </div>
   <div class="key">
     <span><em style="background:var(--g-use)"></em>Use</span><span><em style="background:var(--g-int)"></em>Intelligence</span><span><em style="background:var(--g-data)"></em>Data</span><span><em style="background:var(--g-ops)"></em>Operations</span>
@@ -193,57 +203,57 @@ section{display:grid;gap:14px;min-width:0}
     <div class="colhead"><b>2 · Enterprise data &amp; AI</b><span>Pwin, price-to-win, leads, market</span></div>
     <div class="colhead"><b>3 · Full operating platform</b><span>Everything in the Reference sheet</span></div>
 
-    <div class="ln use"><i></i><div><b>Interface</b><span>Next.js web app · Vercel</span></div></div>
-    <div class="blk use f">Bid, pricing and contract workspace</div>
-    <div class="blk use a"><span class="plus">+</span>Market and pipeline dashboards</div>
-    <div class="blk use a"><span class="plus">+</span>Sales, client and executive views</div>
+    <div class="ln data"><i></i><div><em class="tier">SOURCES IN · Cloud Run</em><b>Connectors</b><span>Scheduled Cloud Run jobs</span></div></div>
+    <div class="blk data f">Procurement sites, Drive, QuickBooks, Belfry</div>
+    <div class="blk data a"><span class="plus">+</span>USAspending, SAM.gov, wage data, bid tabs</div>
+    <div class="blk data a"><span class="plus">+</span>Apollo / ZoomInfo, Gmail, review tools</div>
 
-    <div class="ln use"><i></i><div><b>AI agent access</b><span>MCP server · sign-in</span></div></div>
-    <div class="blk use f">Per-person permissions; ChatGPT and Claude</div>
-    <div class="blk use f">Same as option 1</div>
-    <div class="blk use a"><span class="plus">+</span>Autonomous scheduled agents</div>
+    <div class="ln data"><i></i><div><b>Workers</b><span>Python · Cloud Run</span></div></div>
+    <div class="blk data f">OCR, document parsing, portal crawlers, document output</div>
+    <div class="blk data a"><span class="plus">+</span>More portals, continuous crawling</div>
+    <div class="blk data a"><span class="plus">+</span>24/7 crawling and enrichment</div>
 
-    <div class="ln int"><i></i><div><b>Business logic</b><span>App services · workflows</span></div></div>
-    <div class="blk int f">Staffing and pricing engine, approvals</div>
-    <div class="blk int a"><span class="plus">+</span>Pwin scorecard, price-to-win, lead scoring</div>
-    <div class="blk int a"><span class="plus">+</span>Outreach sequences, records-request follow-up</div>
+    <div class="ln data core"><i></i><div><em class="tier">DATA · Supabase</em><b>Database</b><span>PostgreSQL · system of record</span></div></div>
+    <div class="blk data f core">Bids, requirements, prices, staffing, contracts, competitors, outcomes</div>
+    <div class="blk data a"><span class="plus">+</span>Change history, staging copy, point-in-time recovery</div>
+    <div class="blk data a"><span class="plus">+</span>Leads, outreach, client reviews, credentials</div>
+
+    <div class="ln data"><i></i><div><b>File storage</b><span>Supabase Storage</span></div></div>
+    <div class="blk data f">Original RFPs, proposals, contracts, versioned</div>
+    <div class="blk data a"><span class="plus">+</span>Public awards and bid tabulations</div>
+    <div class="blk data f">Same as option 2</div>
+
+    <div class="ln data"><i></i><div><b>Search</b><span>Full-text + pgvector, inside PostgreSQL</span></div></div>
+    <div class="blk data f">Keyword and meaning search over verified text</div>
+    <div class="blk data f">Same as option 1</div>
+    <div class="blk data f">Same as option 1</div>
+
+    <div class="ln int"><i></i><div><em class="tier">ANALYTICS + AI · Google Cloud</em><b>Data warehouse</b><span>BigQuery · Dataform</span></div></div>
+    <div class="blk int p">Not yet: reports run on the database</div>
+    <div class="blk int a"><span class="plus">+</span>Multi-year history, Pwin and price models</div>
+    <div class="blk int a"><span class="plus">+</span>Marketing, client and expansion analytics</div>
 
     <div class="ln int"><i></i><div><b>AI services</b><span>Gemini · Vertex AI</span></div></div>
     <div class="blk int f">Extraction, drafting, meaning-based search</div>
     <div class="blk int a"><span class="plus">+</span>Model insights on scores</div>
     <div class="blk int a"><span class="plus">+</span>Agent automation at volume</div>
 
-    <div class="ln int"><i></i><div><b>Data warehouse</b><span>BigQuery · Dataform</span></div></div>
-    <div class="blk int p">Not yet: reports run on the database</div>
-    <div class="blk int a"><span class="plus">+</span>Multi-year history, Pwin and price models</div>
-    <div class="blk int a"><span class="plus">+</span>Marketing, client and expansion analytics</div>
+    <div class="ln int"><i></i><div><em class="tier">BACK END · Vercel</em><b>Backend / API</b><span>Sign-in, permissions, services, workflows</span></div></div>
+    <div class="blk int f">Staffing and pricing engine, approvals</div>
+    <div class="blk int a"><span class="plus">+</span>Pwin scorecard, price-to-win, lead scoring</div>
+    <div class="blk int a"><span class="plus">+</span>Outreach sequences, records-request follow-up</div>
 
-    <div class="ln data core"><i></i><div><b>Database</b><span>PostgreSQL · Supabase</span></div></div>
-    <div class="blk data f core">Bids, requirements, prices, staffing, contracts, competitors, outcomes</div>
-    <div class="blk data a"><span class="plus">+</span>Change history, staging copy, point-in-time recovery</div>
-    <div class="blk data a"><span class="plus">+</span>Leads, outreach, client reviews, credentials</div>
+    <div class="ln use"><i></i><div><em class="tier">ACCESS (FRONT END) · Vercel</em><b>Frontend</b><span>Next.js web app · staff</span></div></div>
+    <div class="blk use f">Bid, pricing and contract workspace</div>
+    <div class="blk use a"><span class="plus">+</span>Market and pipeline dashboards</div>
+    <div class="blk use a"><span class="plus">+</span>Sales, client and executive views</div>
 
-    <div class="ln data"><i></i><div><b>Document storage</b><span>Supabase Storage</span></div></div>
-    <div class="blk data f">Original RFPs, proposals, contracts, versioned</div>
-    <div class="blk data a"><span class="plus">+</span>Public awards and bid tabulations</div>
-    <div class="blk data f">Same as option 2</div>
+    <div class="ln use"><i></i><div><b>AI agent gateway</b><span>MCP server · ChatGPT and Claude</span></div></div>
+    <div class="blk use f">Per-person permissions; ChatGPT and Claude</div>
+    <div class="blk use f">Same as option 1</div>
+    <div class="blk use a"><span class="plus">+</span>Autonomous scheduled agents</div>
 
-    <div class="ln data"><i></i><div><b>Search index</b><span>Full-text + pgvector</span></div></div>
-    <div class="blk data f">Keyword and meaning search over verified text</div>
-    <div class="blk data f">Same as option 1</div>
-    <div class="blk data f">Same as option 1</div>
-
-    <div class="ln data"><i></i><div><b>Integrations</b><span>Scheduled Cloud Run jobs</span></div></div>
-    <div class="blk data f">Procurement sites, Drive, QuickBooks, Belfry</div>
-    <div class="blk data a"><span class="plus">+</span>USAspending, SAM.gov, wage data, bid tabs</div>
-    <div class="blk data a"><span class="plus">+</span>Apollo / ZoomInfo, Gmail, review tools</div>
-
-    <div class="ln data"><i></i><div><b>Processing</b><span>Python · Cloud Run</span></div></div>
-    <div class="blk data f">OCR pipeline, portal crawlers, document output</div>
-    <div class="blk data a"><span class="plus">+</span>More portals, continuous crawling</div>
-    <div class="blk data a"><span class="plus">+</span>24/7 crawling and enrichment</div>
-
-    <div class="ln ops"><i></i><div><b>Operations</b><span>CI/CD · Sentry · monitoring</span></div></div>
+    <div class="ln ops"><i></i><div><em class="tier">ACROSS ALL LAYERS</em><b>Operations</b><span>CI/CD · Sentry · monitoring</span></div></div>
     <div class="blk ops f">Backups, monitoring, alerts</div>
     <div class="blk ops a"><span class="plus">+</span>Staging and production</div>
     <div class="blk ops a"><span class="plus">+</span>Agent cost and safety limits</div>
