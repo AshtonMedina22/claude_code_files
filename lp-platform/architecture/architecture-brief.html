@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>L&amp;P Platform Scale Options</title>
+<title>L&amp;P Intelligence Platform Architecture</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap">
@@ -39,6 +39,7 @@ h3{font-size:15px;font-weight:700}
 p{margin:0}
 .eyebrow{font:600 11px/1 var(--f);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .lede{max-width:82ch;color:var(--muted)}
+.sub{font-size:17px;font-weight:600;color:var(--muted);margin-top:-2px}
 section{display:grid;gap:14px;min-width:0}
 .head{display:grid;gap:6px}
 
@@ -144,13 +145,14 @@ section{display:grid;gap:14px;min-width:0}
 
 <div class="wrap">
 <header class="head">
-  <span class="eyebrow">L&amp;P Global Security · for discussion · October 2026</span>
-  <h1>L&amp;P Platform Scale Options</h1>
-  <p class="lede">Page 1: my understanding of what leadership expects the platform to deliver. Page 2: the technology layers needed, with the database at the center, and how three build options differ layer by layer.</p>
+  <span class="eyebrow">L&amp;P Global Security · Architecture brief · October 2026</span>
+  <h1>L&amp;P Intelligence Platform</h1>
+  <p class="sub">Business Objectives and Reference Architecture</p>
+  <p class="lede">Page 1: the business objectives the platform must deliver. Page 2: the reference architecture, layer by layer, across three build options.</p>
 </header>
 
 <section aria-labelledby="g">
-  <div class="head"><span class="eyebrow">1 · The goals</span><h2 id="g">Five business results, and what each one requires the platform to do</h2></div>
+  <div class="head"><span class="eyebrow">1 · Business objectives</span><h2 id="g">Five business objectives and the platform capabilities each requires</h2></div>
   <div class="goals">
     <div class="goal primary"><span class="k">Primary</span><h3>Stronger proposals</h3>
       <ul><li>Accurate, complete, compliant proposals for each RFP</li><li>Know what was strong, what failed and what to change</li><li>Staffing and price plans leadership can approve</li></ul>
@@ -181,7 +183,7 @@ section{display:grid;gap:14px;min-width:0}
 </section>
 
 <section class="page2" aria-labelledby="l">
-  <div class="head"><span class="eyebrow">2 · The technology layers</span><h2 id="l">Back end to front end: ingest, store, analyze, serve, then staff and AI agents access it</h2></div>
+  <div class="head"><span class="eyebrow">2 · Reference architecture</span><h2 id="l">Layered architecture from data ingestion to user access, across three build options</h2></div>
   <div class="flow" aria-label="How the layers connect">
     <div class="fs src2"><b>Sources</b><span>RFPs, past bids, public awards, QuickBooks, Belfry</span></div><span class="fa">→</span>
     <div class="fs data"><b>Ingest</b><span>Connectors + workers (Cloud Run)</span></div><span class="fa">→</span>

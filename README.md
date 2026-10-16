@@ -4,7 +4,7 @@ Plans, diagrams and code produced with Claude Code.
 
 ## L&P platform
 
-- [Scale options](lp-platform/architecture/scale-options.html): two-page brief, goals plus a layer diagram of three build options (also as [PDF](lp-platform/architecture/scale-options.pdf))
+- [Architecture brief](lp-platform/architecture/architecture-brief.html): business objectives and layered reference architecture across three build options, two pages (also as [PDF](lp-platform/architecture/architecture-brief.pdf))
 - [Architecture decisions](lp-platform/architecture/DECISIONS.md): design rules, layers, decisions D1–D12, build phases
 - [Architecture diagram](lp-platform/architecture/lp-platform-architecture.html): interactive layered diagram (open in a browser)
 - [Full stack](lp-platform/architecture/FULL-STACK.md): every layer top-down, with recommended options, alternatives, phase and sources
