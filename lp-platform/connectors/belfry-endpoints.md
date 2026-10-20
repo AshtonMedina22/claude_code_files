@@ -71,11 +71,47 @@ IDs are UUIDs (shown below as `{id}`).
 |---|---|
 | `/api/v4/dashboards?scope=owned&size=25` / `scope=shared` | Belfry's built-in dashboards |
 
+### Customer page tabs
+| Endpoint | Tab | Likely contents |
+|---|---|---|
+| `/api/v2/contact/{id}?is_parent=false` | Site & Billing Settings | Billing contacts |
+| `/api/v1/firm/payment/settings` | Site & Billing Settings | Payment settings |
+| `/api/v1/customer/{id}/files` | Documents | Files attached to the customer |
+| `/api/v2/activities?size=25` | Bell Tower | Activity feed (also on the main Bell Tower page) |
+| `/api/v4/schedule`, `/api/v3/schedule/customers` | Schedule | Same schedule endpoints as Scheduling |
+
+### Bell Tower (field operations, incidents)
+| Endpoint | Likely contents |
+|---|---|
+| `/api/v1/belltower/live` | Live dashboard (who is on post now) |
+| `/api/v2/activities?size=25` | Officer activity log (paged) |
+| `/api/v2/belltower-reports?page=0&pageSize=25` | Submitted reports (incidents, daily activity reports) |
+| `/api/v2/belltower-report-types` | Report types |
+| `/api/v1/report-templates`, `/api/v1/custom-report-templates` | Report templates |
+| `/api/v1/report-template/default-incident-fields` | Standard incident fields |
+| `/api/v4/issues/all?status=detected&unassigned=false` | Issues (missed check-ins, late arrivals, etc.) |
+| `/api/v4/issue-configs` | Issue rules |
+| `/api/v2/dispatch/paginated?size=25` | Dispatches (paged) |
+| `/api/v1/dispatch/count_by_status` | Dispatch counts |
+
+### More scheduling, people, timekeeping, billing
+| Endpoint | Likely contents |
+|---|---|
+| `/api/v1/marketplace/shift-instances?start_date=…&end_date=…` | Open shifts posted for pickup |
+| `/api/v1/officer/all_with_onboarding?only_terminated=false` | Officers with onboarding status |
+| `/api/v1/time_off/range?start_date=…&end_date=…` | Time off in a range |
+| `/api/v1/timecards/payroll_period/officers?start_date=…&end_date=…` | Timecards per officer for a pay period |
+| `/api/v2/timecards_non_hourly/payroll_period?start_date=…&end_date=…` | Non-hourly pay items |
+| `/api/v1/payroll/payschedule?start_date=…&end_date=…` | Pay schedule |
+| `/api/v1/invoices/aging?bucket_count=4&bucket_days=30&age_invoice_by=invoice_date&target_date=…` | AR aging |
+
+### Belfry Analytics pages
+These pages embed Metabase dashboards through `/api/v1/metabase/iframe?dashboard_id=N` (hours 37, incidents 2, licenses 6, turnover risk 27, payroll changelog 4). They return a dashboard to display, not data rows, so they aren't useful for syncing. Rebuild these metrics from the endpoints above.
+
 ## Not mapped yet
-- **Bell Tower:** incident and daily activity reports (needed for client reviews).
-- **Site tabs:** Schedule, Site & Billing Settings, Documents.
+- **Response field names.** Recording them means reading the page's signed-in API responses, which Claude Code's safety check blocks in a browser where a person is signed in. Capture them instead with the gateway's own sealed session (or official Belfry credentials) by calling each endpoint once from the connector code and saving the JSON keys.
+- **Write endpoints.** Not needed; the platform reads only.
 - **Chat, workflows, settings.**
-- **Response field names:** I listed endpoints only; the next step is recording the JSON fields of each.
 
 ## What maps to the architecture
 | Platform need | Belfry source |
@@ -84,4 +120,4 @@ IDs are UUIDs (shown below as `{id}`).
 | Staffing actuals for pricing | schedule, timecards_shifts |
 | Credentials tracking | officer/certification-expiration-status |
 | Contract economics, billing exceptions | invoices, missing_billing_contacts |
-| Client issues | Bell Tower (not mapped yet) |
+| Client issues, incidents | belltower-reports, issues, activities, dispatch |
