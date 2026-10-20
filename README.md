@@ -10,4 +10,5 @@ Plans, diagrams and code produced with Claude Code.
 - [Full stack](lp-platform/architecture/FULL-STACK.md): every layer top-down, with recommended options, alternatives, phase and sources
 - [Full stack map](lp-platform/architecture/full-stack-map.html): visual version with a build-phase filter (open in a browser)
 - [Starter stack](lp-platform/architecture/STARTER-STACK.md): verified install list per layer (template vs. individual packages)
+- [Belfry API map](lp-platform/connectors/belfry-endpoints.md): internal endpoints Belfry's web app uses, mapped read-only, for the gateway connector
 - [Architecture history](lp-platform/architecture/history/README.md): earlier versions (v1, v2) and the all-Google-Cloud alternative, which was not adopted.
